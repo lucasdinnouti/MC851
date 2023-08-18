@@ -4,11 +4,11 @@ module decoder (
     output wire [4:0] rs2,
     output wire [4:0] rd,
     output reg [31:0] immediate,
-    output reg alu_use_rs2,
+    output wire alu_use_rs2,
     output reg [3:0] alu_op,
-    output reg reg_write,
-    output reg mem_write,
-    output reg mem_read,
+    output wire reg_write,
+    output wire mem_write,
+    output wire mem_read,
     output wire [2:0] mem_op_length
 );
 
@@ -23,6 +23,10 @@ module decoder (
   assign rd = instruction[11:7];
 
   assign mem_op_length = funct3;
+  assign reg_write = (opcode == `LOAD_OP || opcode == `REG_OP || opcode == `IMM_OP);
+  assign mem_read = (opcode == `LOAD_OP);
+  assign mem_write = (opcode == `STORE_OP);
+  assign alu_use_rs2 = (opcode == `REG_OP);
 
   always @* begin
     if (opcode == `LOAD_OP || opcode == `STORE_OP) begin
@@ -43,31 +47,6 @@ module decoder (
     end else begin
       immediate = $signed(instruction[31:20]);
     end
-
-    if (opcode == `LOAD_OP || opcode == `REG_OP || opcode == `IMM_OP) begin
-      reg_write = 1;
-    end else begin
-      reg_write = 0;
-    end
-
-    if (opcode == `LOAD_OP) begin
-      mem_read = 1;
-    end else begin
-      mem_read = 0;
-    end
-
-    if (opcode == `STORE_OP) begin
-      mem_write = 1;
-    end else begin
-      mem_write = 0;
-    end
-
-    if (opcode == `REG_OP) begin
-      alu_use_rs2 = 1;
-    end else begin
-      alu_use_rs2 = 0;
-    end
-
   end
 
 endmodule
