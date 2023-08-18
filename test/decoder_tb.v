@@ -15,6 +15,30 @@
     `assert(alu_op, expected_alu_op, name, "alu_op"); \
     `assert(reg_write, 1, name, "reg_write");
 
+`define assert_load_instruction(name, expected_rd, expected_immediate, expected_rs1,
+                                expected_mem_op_length) \
+    `assert(rd, expected_rd, name, "rd") \
+    `assert(rs1, expected_rs1, name, "rs1") \
+    `assert(immediate, expected_immediate, name, "immediate") \
+    `assert(alu_use_rs2, 0, name, "alu_use_rs2") \
+    `assert(alu_op, `ALU_ADD_OP, name, "alu_op") \
+    `assert(reg_write, 1, name, "reg_write") \
+    `assert(mem_write, 0, name, "mem_write") \
+    `assert(mem_read, 1, name, "mem_read") \
+    `assert(mem_op_length, expected_mem_op_length, name, "mem_op_length");
+
+`define assert_store_instruction(name, expected_rs2, expected_immediate, expected_rs1,
+                                 expected_mem_op_length) \
+    `assert(rs1, expected_rs1, name, "rs1"); \
+    `assert(rs2, expected_rs2, name, "rs2"); \
+    `assert(immediate, expected_immediate, name, "immediate"); \
+    `assert(alu_use_rs2, 0, name, "alu_use_rs2"); \
+    `assert(alu_op, `ALU_ADD_OP, name, "alu_op"); \
+    `assert(reg_write, 0, name, "reg_write"); \
+    `assert(mem_write, 1, name, "mem_write"); \
+    `assert(mem_read, 0, name, "mem_read"); \
+    `assert(mem_op_length, expected_mem_op_length, name, "mem_op_length");
+
 `timescale 1 ns / 10 ps
 
 module decoder_tb;
@@ -147,31 +171,44 @@ module decoder_tb;
     #PERIOD;
     `assert_immediate_instruction("srai", 5, 6, 0, `ALU_SRA_OP);
 
-    // lw x20, 16(x10)
-    instruction = 32'h01052a03;
+    // lb x20, 16(x10)
+    instruction = 32'h01050a03;
     #PERIOD;
-    `assert(rd, 20, "lw", "rd");
-    `assert(rs1, 10, "lw", "rs1");
-    `assert(immediate, 16, "lw", "immediate");
-    `assert(alu_use_rs2, 0, "lw", "alu_use_rs2");
-    `assert(alu_op, `ALU_ADD_OP, "lw", "alu_op");
-    `assert(reg_write, 1, "lw", "reg_write");
-    `assert(mem_write, 0, "lw", "mem_write");
-    `assert(mem_read, 1, "lw", "mem_read");
-    `assert(mem_op_length, `MEM_WORD, "lw", "mem_op_length");
+    `assert_load_instruction("lb", 20, 16, 10, `MEM_BYTE);
+
+    // lh x1, 0(x1)
+    instruction = 32'h00009083;
+    #PERIOD;
+    `assert_load_instruction("lh", 1, 0, 1, `MEM_HALF);
+
+    // lw x4, -32(x8)
+    instruction = 32'hfe042203;
+    #PERIOD;
+    `assert_load_instruction("lw", 4, -32, 8, `MEM_WORD);
+
+    // lbu x15, 1024(x4)
+    instruction = 32'h40024783;
+    #PERIOD;
+    `assert_load_instruction("lbu", 15, 1024, 4, `MEM_BYTE_U);
+
+    // lhu x19, 4(x31)
+    instruction = 32'h004fd983;
+    #PERIOD;
+    `assert_load_instruction("lhu", 19, 4, 31, `MEM_HALF_U);
 
     // sw x1, -16(x2)
     instruction = 32'hfe112823;
     #PERIOD;
-    `assert(rs1, 2, "sw", "rs1");
-    `assert(rs2, 1, "sw", "rs2");
-    `assert(immediate, -16, "sw", "immediate");
-    `assert(alu_use_rs2, 0, "sw", "alu_use_rs2");
-    `assert(alu_op, `ALU_ADD_OP, "sw", "alu_op");
-    `assert(reg_write, 0, "sw", "reg_write");
-    `assert(mem_write, 1, "sw", "mem_write");
-    `assert(mem_read, 0, "sw", "mem_read");
-    `assert(mem_op_length, `MEM_WORD, "sw", "mem_op_length");
+    `assert_store_instruction("sw", 1, -16, 2, `MEM_WORD);
 
+    // sh x5, 0(x6)
+    instruction = 32'h00531023;
+    #PERIOD;
+    `assert_store_instruction("sh", 5, 0, 6, `MEM_HALF);
+
+    // sb x4, 32(x3)
+    instruction = 32'h02418023;
+    #PERIOD;
+    `assert_store_instruction("sb", 4, 32, 3, `MEM_BYTE);
   end
 endmodule
