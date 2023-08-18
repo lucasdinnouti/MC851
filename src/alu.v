@@ -15,7 +15,7 @@ module alu (
       `ALU_AND_OP:  result = a & b;
       `ALU_SRL_OP:  result = a >> b;
       `ALU_SRA_OP:  result = a >>> b;
-      `ALU_SLT_OP:  result = $signed(a) < $signed(b) ? 1'b1 : 1'b0;
+      `ALU_SLT_OP:  result = $signed(a) < $signed(b) ? 1 : 0;
       `ALU_SLTU_OP: result = a < b ? 1 : 0;
     endcase
     zero = (result == 0);

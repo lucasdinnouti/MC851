@@ -8,3 +8,14 @@
 `define ALU_SRA_OP 4'b1101
 `define ALU_SLT_OP 4'b0010
 `define ALU_SLTU_OP 4'b0011
+
+`define LOAD_OP 7'b0000011
+`define STORE_OP 7'b0100011
+`define IMM_OP 7'b0010011
+`define REG_OP 7'b0110011
+
+`define MEM_WORD 3'b010
+`define MEM_HALF 3'b001
+`define MEM_BYTE 3'b000
+`define MEM_HALF_U 3'b101
+`define MEM_BYTE_U 3'b100

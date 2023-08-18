@@ -7,7 +7,7 @@ module test_cpu (
   wire [4:0] rs2;
   wire [4:0] rd;
   wire [31:0] immediate;
-  wire alu_source;
+  wire alu_use_rs2;
   wire [3:0] alu_op;
   wire should_write;
 
@@ -15,7 +15,7 @@ module test_cpu (
   wire [31:0] rs2_data;
 
   wire [31:0] alu_b;
-  assign alu_b = alu_source == 0 ? immediate : rs2_data;
+  assign alu_b = alu_use_rs2 == 0 ? immediate : rs2_data;
 
   wire zero;
   wire [31:0] result;
@@ -26,7 +26,7 @@ module test_cpu (
       .rs2(rs2),
       .rd(rd),
       .immediate(immediate),
-      .alu_source(alu_source),
+      .alu_use_rs2(alu_use_rs2),
       .alu_op(alu_op),
       .should_write(should_write)
   );
