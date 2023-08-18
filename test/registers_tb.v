@@ -29,8 +29,8 @@ module registers_tb;
   end
 
   initial begin
-    rs1  = 0;
-    rs2  = 31;
+    rs1 = 0;
+    rs2 = 31;
     rd = 0;
     data = 0;
     should_write = 0;

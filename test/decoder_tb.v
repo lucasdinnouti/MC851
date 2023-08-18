@@ -56,7 +56,7 @@ module decoder_tb;
     instruction = 32'h00108533;
     #PERIOD;
     `assert_register_instruction("add", 10, 1, 1, `ALU_ADD_OP);
-    
+
     // sub x10, x11, x12
     instruction = 32'h40c58533;
     #PERIOD;
