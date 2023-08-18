@@ -19,3 +19,5 @@
 `define MEM_BYTE 3'b000
 `define MEM_HALF_U 3'b101
 `define MEM_BYTE_U 3'b100
+
+`define INSTRUCTION_MEMORY_SIZE 4'd8

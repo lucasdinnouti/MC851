@@ -1,0 +1,16 @@
+{
+    "name": "cpu",
+    "includedFiles": [
+        "constants.v",
+        "alu.v",
+        "decoder.v",
+        "registers.v",
+        "instruction_memory.v",
+        "test_cpu.v"
+    ],
+    "top": "test_cpu",
+    "constraintsFile": "cpu.cst",
+    "externalFlashFiles": [
+        "test2.riscv"
+    ]
+}
