@@ -3,7 +3,7 @@ module registers (
     input wire [4:0] rs2,
     input wire [4:0] rd,
     input wire [31:0] data,
-    input wire should_write,
+    input wire reg_write,
     input wire clock,
     output wire [31:0] rs1_data,
     output wire [31:0] rs2_data
@@ -18,9 +18,9 @@ module registers (
   assign rs1_data = registers[rs1];
   assign rs2_data = registers[rs2];
 
-  always @(posedge clock) begin
-    if (should_write) begin
-      registers[rd] = data;
+  always @* begin
+    if (reg_write) begin
+      registers[rd] <= data;
     end
   end
 endmodule

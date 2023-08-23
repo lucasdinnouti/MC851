@@ -1,10 +1,11 @@
 module test_cpu (
     input wire clock,
+    input wire btn,
     output wire flashClk,
     input wire flashMiso,
     output wire flashMosi,
     output wire flashCs,
-    output wire[5:0] led
+    output wire [5:0] led
 );
 
   wire [31:0] pc;
@@ -27,6 +28,18 @@ module test_cpu (
   wire zero;
   wire [31:0] result;
 
+  reg [5:0] ledTmp;
+  assign led = ledTmp;
+
+  always @(posedge btn) begin
+    pc <= pc + 4;
+    // led[3:0] = ~result[3:0];
+  end
+
+  always @(posedge clock) begin
+    ledTmp = ~result[5:0];
+  end
+
   instruction_memory instruction_memory (
       .pc(pc),
       .instruction(instruction),
@@ -34,8 +47,7 @@ module test_cpu (
       .flashClk(flashClk),
       .flashMiso(flashMiso),
       .flashMosi(flashMosi),
-      .flashCs(flashCs),
-      .led(led)
+      .flashCs(flashCs)
   );
 
   decoder decoder (
@@ -54,8 +66,8 @@ module test_cpu (
       .rs2(rs2),
       .rd(rd),
       .data(result),
-      .should_write(should_write),
-      .clock(clock),
+      .reg_write(reg_write),
+      .clock(btn),
       .rs1_data(rs1_data),
       .rs2_data(rs2_data)
   );

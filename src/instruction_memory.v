@@ -5,13 +5,12 @@ module instruction_memory (
   output reg flashClk = 0,
   input flashMiso,
   output reg flashMosi = 0,
-  output reg flashCs = 1,
-  output reg [5:0] led
+  output reg flashCs = 1
 );
-  reg [31:0] instructions[INSTRUCTION_MEMORY_SIZE - 1:0];
-  integer i;
+  reg [31:0] instructions[31:0];
+  integer i, j;
   initial begin
-    for (i = 0; i < 8; i = i + 1) instructions[i] = 32'b0;
+    for (i = 0; i < 32; i = i + 1) instructions[i] = 32'b0;
   end
 
   localparam STATE_INIT = 8'd0;
@@ -32,14 +31,14 @@ module instruction_memory (
   reg [7:0] command = 8'h03;
   reg [7:0] currentByteOut = 0;
   reg [7:0] currentByteNum = 0;
-  reg [255:0] dataIn = 0;
-  reg [255:0] dataInBuffer = 0;
+  reg [1023:0] dataIn = 0;
+  reg [1023:0] dataInBuffer = 0;
 
   reg dataReady = 0;
 
-  always @(posedge clock) begin
-    instruction <= instructions[pc];
+  assign instruction = instructions[pc >> 2];
 
+  always @(posedge clock) begin
     case (state)
       STATE_INIT: begin
         counter <= 32'b0;
@@ -100,11 +99,11 @@ module instruction_memory (
         flashCs <= 1;
         dataInBuffer <= dataIn;
         
-        for (i = 0; i < 8; i = i + 1) begin
-          instructions[i][31:0] <= dataInBuffer[(i << 5)+:32];
+        for (i = 0; i < 32; i = i + 1) begin
+          for (j = 0; j < 4; j = j + 1) begin
+            instructions[i][31 - (j << 3)-:8] <= dataInBuffer[((i << 5) + (j << 3) + 7)-:8];
+          end
         end
-
-        led[5:0] <= ~instructions[0][5:0];
       end
     endcase
   end

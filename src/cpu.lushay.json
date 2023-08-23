@@ -11,6 +11,6 @@
     "top": "test_cpu",
     "constraintsFile": "cpu.cst",
     "externalFlashFiles": [
-        "test2.riscv"
+        "resources/test2.riscv"
     ]
 }
