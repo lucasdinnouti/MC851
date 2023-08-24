@@ -1,3 +1,10 @@
+`include "src/constants.v"
+`include "src/branch.v"
+`include "src/mock_memory.v"
+`include "src/registers.v"
+`include "src/decoder.v"
+`include "src/alu.v"
+
 module mock_cpu (
     input wire clock
 );
@@ -25,9 +32,19 @@ module mock_cpu (
   wire zero;
   wire [31:0] result;
 
-  memory memory (
-    .address(instruction),
-    .input_data(rs2_data),
+  branch branch (
+      .pc(pc),
+      .clock(clock)
+  );
+
+  memory instruction_memory (
+      .address(pc >> 2),
+      .input_data(0),
+      .mem_write(1'b0),
+      .mem_read(1'b1),
+      .mem_type(`MEM_ROM),
+      .clock(clock),
+      .output_data(instruction)
   );
 
   decoder decoder (
@@ -41,7 +58,7 @@ module mock_cpu (
       .reg_write(reg_write),
       .mem_write(mem_write),
       .mem_read(mem_read),
-      .mem_op_lengt(mem_op_length)
+      .mem_op_length(mem_op_length)
   );
 
   registers registers (
@@ -49,7 +66,7 @@ module mock_cpu (
       .rs2(rs2),
       .rd(rd),
       .data(result),
-      .should_write(should_write),
+      .reg_write(reg_write),
       .clock(clock),
       .rs1_data(rs1_data),
       .rs2_data(rs2_data)
@@ -62,5 +79,4 @@ module mock_cpu (
       .zero(zero),
       .result(result)
   );
-
 endmodule
