@@ -18,7 +18,7 @@ module registers (
   assign rs1_data = registers[rs1];
   assign rs2_data = registers[rs2];
 
-  always @* begin
+  always @(posedge clock) begin
     if (reg_write) begin
       registers[rd] <= data;
     end

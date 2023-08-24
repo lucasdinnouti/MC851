@@ -1,3 +1,5 @@
 cpu_pnr.json
 *.fs
 cpu.json
+*.vcd
+*.out
