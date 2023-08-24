@@ -6,11 +6,16 @@
         "decoder.v",
         "registers.v",
         "instruction_memory.v",
-        "test_cpu.v"
+        "post_ex_pipeline_registers.v",
+        "if_id_pipeline_registers.v",
+        "id_ex_pipeline_registers.v",
+        "cpu.v"
     ],
-    "top": "test_cpu",
+    "top": "cpu",
     "constraintsFile": "cpu.cst",
     "externalFlashFiles": [
         "resources/test2.riscv"
-    ]
+    ],
+    "synthGowinOptions": ["-noalu", "-nowidelut", "-nolutram", "-nodffe"],
+    "nextPnrGowinOptions": ["--enable-globals", "--enable-auto-longwires"]
 }
