@@ -18,12 +18,9 @@ module registers (
 
   assign rs1_data = registers[rs1];
   assign rs2_data = registers[rs2];
-  // assign led[4:0] = ~data[4:0];
-  // assign led[4] = ~reg_write;
   assign led[4:0] = ~registers[1][4:0];
 
-  always @(negedge clock) begin
-    // led[4:0] <= ~data[4:0];
+  always @(posedge clock) begin
     if (reg_write) begin
       registers[rd] <= data;
     end
