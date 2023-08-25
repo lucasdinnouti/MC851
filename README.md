@@ -10,6 +10,10 @@
 
 Placa R4
 
+# Diagrama
+
+![Diagrama](image.png)
+
 # Roteiro
 
 ## Etapa 1
