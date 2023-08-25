@@ -104,13 +104,9 @@ module instruction_memory (
       STATE_DONE: begin
         dataReady <= 1;
         flashCs <= 1;
-        // for (i = 0; i < 32; i = i + 1) begin
-        //   // instructions[i][31:0] = dataIn[((i << 5) + 31)-:32];
-        //   for (j = 0; j < 4; j = j + 1) begin
-        //     instructions[i][31 - (j << 3)-:8] <= dataIn[((i << 5) + (j << 3) + 7)-:8];
-        //   end
-        // end
       end
+
+      default: dataReady <= 0;
     endcase
   end
 endmodule

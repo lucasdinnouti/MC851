@@ -6,6 +6,7 @@
         "decoder.v",
         "registers.v",
         "instruction_memory.v",
+        "mock_memory.v",
         "post_ex_pipeline_registers.v",
         "if_id_pipeline_registers.v",
         "id_ex_pipeline_registers.v",

@@ -7,20 +7,21 @@ module registers (
     input wire clock,
     output wire [31:0] rs1_data,
     output wire [31:0] rs2_data,
-    output wire [5:0] led
+    output wire [4:0] led
 );
   reg [31:0] registers[31:0];
 
   integer i;
   initial begin
-    for (i = 0; i < 32; i = i + 1) registers[i] = 0;
+    for (i = 0; i < 32; i = i + 1) registers[i] = 32'd0;
   end
 
   assign rs1_data = registers[rs1];
   assign rs2_data = registers[rs2];
   assign led[4:0] = ~registers[1][4:0];
 
-  always @(posedge clock) begin
+  always @(negedge clock) begin
+    // led[4:0] <= ~registers[1][4:0];
     if (reg_write) begin
       registers[rd] <= data;
     end

@@ -7,16 +7,11 @@ module cpu (
     output wire flashCs,
     output wire [5:0] led
 );
+  localparam WAIT_TIME = 54000000;
+  // localparam WAIT_TIME = 4;
+
   reg [31:0] pc = 0;
   wire [31:0] instruction;
-
-  // reg [31:0] results_by_pc [31:0];
-  // integer i;
-  // initial begin
-  //   for (i = 0; i < 32; i = i + 1) begin
-  //     results_by_pc[i] = i;
-  //   end
-  // end
 
   wire [4:0] rs1;
   wire [4:0] rs2;
@@ -47,32 +42,49 @@ module cpu (
   wire [4:0] wb_rd;
   wire wb_reg_write;
 
-  // assign led[5] = ~pc[2];
-  // assign led[4:0] = ~rs1_data[4:0];
-  reg controlled_clock = 0;
+  assign led[5] = ~pc[2];
+  // assign led[4:0] = ~wb_alu_result[4:0];
+
+  wire controlled_clock;
   // assign controlled_clock = btn;
   
   reg [25:0] clock_counter = 0;
+  // reg [4:0] clock_counter = 0;
   always @(posedge clock) begin
     clock_counter <= clock_counter + 1;
-    if (clock_counter == 0) begin
-      controlled_clock <= ~controlled_clock;
+    
+    if (clock_counter == WAIT_TIME / 2) begin
+      controlled_clock <= 0;
+    end
+
+    if (clock_counter == WAIT_TIME) begin
+      clock_counter <= 0;
+      controlled_clock <= 1;
     end
   end
 
   always @(posedge controlled_clock) begin
-    pc <= pc + 3'b100;
-    led[5] <= ~pc[2];
+    pc <= pc + 4;
   end
 
-  instruction_memory instruction_memory (
-    .pc(pc),
-    .instruction(instruction),
-    .clock(clock),
-    .flashClk(flashClk),
-    .flashMiso(flashMiso),
-    .flashMosi(flashMosi),
-    .flashCs(flashCs)
+  // instruction_memory instruction_memory (
+  //   .pc(pc),
+  //   .instruction(instruction),
+  //   .clock(clock),
+  //   .flashClk(flashClk),
+  //   .flashMiso(flashMiso),
+  //   .flashMosi(flashMosi),
+  //   .flashCs(flashCs)
+  // );
+
+  memory instruction_memory (
+      .address(pc >> 2),
+      .input_data(0),
+      .mem_write(1'b0),
+      .mem_read(1'b1),
+      .mem_type(`MEM_ROM),
+      .clock(clock),
+      .output_data(instruction)
   );
 
   if_id_pipeline_registers if_id_pipeline_registers (
@@ -101,7 +113,7 @@ module cpu (
     .clock(controlled_clock),
     .rs1_data(rs1_data),
     .rs2_data(rs2_data),
-    .led(led)
+    .led(led[4:0])
   );
 
   // id_ex_pipeline_registers id_ex_pipeline_registers (
@@ -131,7 +143,6 @@ module cpu (
   // );
 
   alu alu (
-    .clock(clock),
     .a(rs1_data),
     .b(alu_b),
     .op(alu_op),

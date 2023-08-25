@@ -1,5 +1,4 @@
 module alu (
-    input wire clock,
     input wire [31:0] a,
     input wire [31:0] b,
     input wire [3:0] op,
@@ -10,7 +9,7 @@ module alu (
     output wire [31:0] result,
     output wire [31:0] sub_result
 );
-  always @(posedge clock) begin
+  always @* begin
     case (op)
       `ALU_ADD_OP:  result <= a + b;
       `ALU_SUB_OP:  result <= a + (~b + 1);
@@ -22,6 +21,7 @@ module alu (
       `ALU_SRA_OP:  result <= a >>> b;
       `ALU_SLT_OP:  result <= $signed(a) < $signed(b) ? 1 : 0;
       `ALU_SLTU_OP: result <= a < b ? 1 : 0;
+      default: result <= 0;
     endcase
 
     zero <= (result == 0);
