@@ -1,4 +1,4 @@
-`include "src/mock_cpu.v"
+`include "test/mock_cpu.v"
 `include "test/assert.v"
 
 `timescale 1 ns / 10 ps

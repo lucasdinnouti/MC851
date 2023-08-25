@@ -1,6 +1,6 @@
 `include "src/constants.v"
 `include "src/branch.v"
-`include "src/mock_memory.v"
+`include "test/mock_memory.v"
 `include "src/registers.v"
 `include "src/decoder.v"
 `include "src/alu.v"
