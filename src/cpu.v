@@ -42,6 +42,8 @@ module cpu (
   wire [4:0] wb_rd;
   wire wb_reg_write;
 
+  wire [31:0] r1;
+
   assign led[5] = ~pc[2];
   // assign led[4:0] = ~wb_alu_result[4:0];
 
@@ -113,6 +115,11 @@ module cpu (
     .clock(controlled_clock),
     .rs1_data(rs1_data),
     .rs2_data(rs2_data),
+    .r1(r1)
+  );
+
+  peripherals peripherals(
+    .r1(r1), 
     .led(led[4:0])
   );
 

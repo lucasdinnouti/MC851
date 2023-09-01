@@ -4,6 +4,7 @@
         "constants.v",
         "alu.v",
         "decoder.v",
+        "peripherals.v",
         "registers.v",
         "instruction_memory.v",
         "mock_memory.v",
