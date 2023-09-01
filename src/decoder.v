@@ -9,7 +9,8 @@ module decoder (
     output wire reg_write,
     output wire mem_write,
     output wire mem_read,
-    output wire [2:0] mem_op_length
+    output wire [2:0] mem_op_length,
+    output reg [2:0] branch_type
 );
 
   wire [2:0] funct3;
@@ -44,9 +45,17 @@ module decoder (
       immediate = instruction[24:20];
     end else if (opcode == `STORE_OP) begin
       immediate = $signed({instruction[31:25], instruction[11:7]});
+    end else if (opcode == `BRANCH_OP) begin
+      immediate = $signed({instruction[31:31], instruction[7:7], instruction[30:25],
+                           instruction[11:8], 1'b0});
     end else begin
       immediate = $signed(instruction[31:20]);
     end
-  end
 
+    if (opcode == `BRANCH_OP) begin
+      branch_type = funct3;
+    end else begin
+      branch_type = `BRANCH_NONE;
+    end
+  end
 endmodule

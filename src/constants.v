@@ -13,6 +13,7 @@
 `define STORE_OP 7'b0100011
 `define IMM_OP 7'b0010011
 `define REG_OP 7'b0110011
+`define BRANCH_OP 7'b1100011
 
 `define MEM_WORD 3'b010
 `define MEM_HALF 3'b001
@@ -24,3 +25,11 @@
 
 `define MEM_ROM 1'b0
 `define MEM_RAM 1'b1
+
+`define BRANCH_EQ 3'b000
+`define BRANCH_NE 3'b001
+`define BRANCH_NONE 3'b010
+`define BRANCH_LT 3'b100
+`define BRANCH_GE 3'b101
+`define BRANCH_LTU 3'b110
+`define BRANCH_GEU 3'b111

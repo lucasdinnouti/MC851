@@ -1,13 +1,11 @@
 `timescale 1 ns / 10 ps
 
 `define assert_alu_result(name, expected_result) \
-    `assert(result, expected_result, name, "result"); \
-    `assert(zero, expected_result == 0 ? 1 : 0, name, "zero");
+    `assert(result, expected_result, name, "result");
 
 module alu_tb;
   reg [31:0] a, b;
-  reg [3:0] op;
-  wire zero;
+  reg  [ 3:0] op;
   wire [31:0] result;
 
   localparam PERIOD = 10;
@@ -16,7 +14,6 @@ module alu_tb;
       .a(a),
       .b(b),
       .op(op),
-      .zero(zero),
       .result(result)
   );
 
