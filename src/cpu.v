@@ -12,6 +12,8 @@ module cpu (
 
   reg [31:0] pc = 0;
   wire [31:0] instruction;
+  wire [31:0] peripheral_bus;
+  wire [31:0] wb_peripheral_bus;
 
   wire [4:0] rs1;
   wire [4:0] rs2;
@@ -82,11 +84,13 @@ module cpu (
   memory instruction_memory (
       .address(pc >> 2),
       .input_data(0),
+      .wb_peripheral_bus(wb_peripheral_bus),
       .mem_write(1'b0),
       .mem_read(1'b1),
       .mem_type(`MEM_ROM),
       .clock(clock),
-      .output_data(instruction)
+      .output_data(instruction),
+      .peripheral_bus(peripheral_bus)
   );
 
   if_id_pipeline_registers if_id_pipeline_registers (
@@ -119,8 +123,10 @@ module cpu (
   );
 
   peripherals peripherals(
-    .r1(r1), 
-    .led(led[4:0])
+    .peripheral_bus(peripheral_bus),
+    .btn(btn),
+    .led(led[4:0]),
+    .wb_peripheral_bus(wb_peripheral_bus)
   );
 
   // id_ex_pipeline_registers id_ex_pipeline_registers (
