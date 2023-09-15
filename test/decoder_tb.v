@@ -58,7 +58,7 @@ module decoder_tb;
   wire [4:0] rd;
   wire [31:0] immediate;
   wire alu_use_rs2;
-  wire [3:0] alu_op;
+  wire [4:0] alu_op;
   wire reg_write;
   wire mem_write;
   wire mem_read;
@@ -137,6 +137,16 @@ module decoder_tb;
     instruction = 32'h01ffffb3;
     #PERIOD;
     `assert_register_instruction("and", 31, 31, 31, `ALU_AND_OP);
+
+    // mul x10, x9, x8
+    instruction = 32'h02848533;
+    #PERIOD;
+    `assert_register_instruction("mul", 10, 9, 8, `ALU_MUL_OP);
+
+    // div x1, x1, x1
+    instruction = 32'h0210c0b3;
+    #PERIOD;
+    `assert_register_instruction("div", 1, 1, 1, `ALU_DIV_OP);
 
     // addi x5, x6, 7
     instruction = 32'h00730293;

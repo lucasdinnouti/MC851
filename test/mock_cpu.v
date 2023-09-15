@@ -17,7 +17,7 @@ module mock_cpu (
   wire [4:0] rd;
   wire [31:0] immediate;
   wire alu_use_rs2;
-  wire [3:0] alu_op;
+  wire [4:0] alu_op;
   wire reg_write;
   wire mem_write;
   wire mem_read;

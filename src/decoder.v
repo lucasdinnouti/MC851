@@ -5,7 +5,7 @@ module decoder (
     output wire [4:0] rd,
     output reg [31:0] immediate,
     output wire alu_use_rs2,
-    output reg [3:0] alu_op,
+    output reg [4:0] alu_op,
     output wire reg_write,
     output wire mem_write,
     output wire mem_read,
@@ -35,9 +35,9 @@ module decoder (
       alu_op = `ALU_ADD_OP;
     end else if (opcode == `IMM_OP && funct3 != 3'b101) begin
       // Immediate instructions except for SRLI and SRAI
-      alu_op = {1'b0, funct3};
+      alu_op = {2'b00, funct3};
     end else begin
-      alu_op = {instruction[30], funct3};
+      alu_op = {instruction[25], instruction[30], funct3};
     end
 
     if (opcode == `IMM_OP && funct3 == 3'b101) begin
