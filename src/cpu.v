@@ -81,7 +81,6 @@ module cpu (
       .address(pc >> 2),
       .input_data(0),
       .mem_write(1'b0),
-      .mem_read(1'b1),
       .mem_type(`MEM_ROM),
       .clock(clock),
       .output_data(instruction)

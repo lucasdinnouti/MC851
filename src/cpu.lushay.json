@@ -5,14 +5,17 @@
         "alu.v",
         "decoder.v",
         "registers.v",
-        "instruction_memory.v",
-        "mock_memory.v",
+        "memory/flash_memory.v",
+        "memory/memory.v",
+        "memory/l1.v",
+        "memory/memory_controller.v",
+        "memory/memory_test.v",
         "post_ex_pipeline_registers.v",
         "if_id_pipeline_registers.v",
         "id_ex_pipeline_registers.v",
         "cpu.v"
     ],
-    "top": "cpu",
+    "top": "memory_test",
     "constraintsFile": "cpu.cst",
     "externalFlashFiles": [
         "resources/test2.riscv"
