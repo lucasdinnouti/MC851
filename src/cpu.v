@@ -1,6 +1,7 @@
 module cpu (
     input wire clock,
     input wire btn,
+    input wire [1:0] photores,
     output wire flashClk,
     input wire flashMiso,
     output wire flashMosi,
@@ -125,6 +126,7 @@ module cpu (
   peripherals peripherals(
     .peripheral_bus(peripheral_bus),
     .btn(btn),
+    .photores(photores),
     .led(led[4:0]),
     .wb_peripheral_bus(wb_peripheral_bus)
   );
