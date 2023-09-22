@@ -23,6 +23,10 @@ module cpu (
   wire alu_use_rs2;
   wire [3:0] alu_op;
   wire reg_write;
+  wire decoder_mem_write;
+  wire decoder_mem_read;
+  wire [2:0] decoder_mem_op_length;
+  wire [2:0] decoder_branch_type;
 
   wire [31:0] rs1_data;
   wire [31:0] rs2_data;
@@ -82,12 +86,11 @@ module cpu (
   //   .flashCs(flashCs)
   // );
 
-  memory instruction_memory (
+  memory_controller instruction_memory (
       .address(pc >> 2),
       .input_data(0),
       .wb_peripheral_bus(wb_peripheral_bus),
       .mem_write(1'b0),
-      .mem_read(1'b1),
       .mem_type(`MEM_ROM),
       .clock(clock),
       .output_data(instruction),
@@ -108,7 +111,11 @@ module cpu (
     .immediate(immediate),
     .alu_use_rs2(alu_use_rs2),
     .alu_op(alu_op),
-    .reg_write(reg_write)
+    .reg_write(reg_write),
+    .mem_write(decoder_mem_write),
+    .mem_read(decoder_mem_read),
+    .mem_op_length(decoder_mem_op_length),
+    .branch_type(decoder_branch_type)
   );
 
   registers registers (
@@ -184,4 +191,14 @@ module cpu (
     .wb_rd(wb_rd),
     .wb_reg_write(wb_reg_write)
   );
+
+  memory_controller data_memory (
+    .address(pc >> 2),
+    .input_data(0),
+    .mem_write(1'b0),
+    .mem_type(`MEM_RAM),
+    .clock(clock),
+    .output_data(instruction)
+  )
+
 endmodule
