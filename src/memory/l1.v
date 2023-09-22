@@ -32,33 +32,43 @@ module l1 (
   assign ready = 1;
   integer i;
 
+  initial begin
+    for (i = 0; i < CACHE_LINES; i++) begin
+      valid[i] <= 0;
+    end
+  end
+
   memory #(256) memory(
     .address(address),
     .input_data(input_data),
     .should_write(should_write),
     .clock(clock),
-    .reset(reset),
     .output_data(main_memory_output)
   );
 
-  always @(posedge reset) begin
-    for (i = 0; i < CACHE_LINES; i++) begin
-      valid[i] = 32'h00000000;
-      lines[i] = 32'h00000000;
-    end
-  end
+  // always @(posedge reset) begin
+    // if (reset) begin
+    //   for (i = 0; i < CACHE_LINES; i++) begin
+    //     valid[i] = 0;
+    //   end
+    // end
+  // end
 
   always @(negedge clock) begin
-    // if (~reset) begin
-      if (should_write) begin
-        lines[current_index] <= input_data;
-        tags[current_index] <= current_tag;
-        valid[current_index] <= 1;
-      end else if (~cache_hit) begin
-        lines[current_index] <= main_memory_output;
-        tags[current_index] <= current_tag;
-        valid[current_index] <= 1;
-      end
+    if (should_write) begin
+      lines[current_index] <= input_data;
+      tags[current_index] <= current_tag;
+      valid[current_index] <= 1;
+    end else if (~cache_hit) begin
+      lines[current_index] <= main_memory_output;
+      tags[current_index] <= current_tag;
+      valid[current_index] <= 1;
     end
-  // end
+    
+    // if (reset) begin
+    //   for (i = 0; i < CACHE_LINES; i++) begin
+    //     valid[i] <= 0;
+    //   end
+    // end
+  end
 endmodule

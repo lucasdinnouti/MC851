@@ -4,16 +4,23 @@ module memory_controller (
   input wire mem_write,
   input wire mem_type,
   input wire clock,
+  input wire reset,
   output reg [31:0] output_data,
   output wire should_stall
 );
-  always @(posedge clock) begin
-    output_data <= data[address];
-  end
+  wire is_l1_ready;
+  wire should_write;
 
-  always @(negedge clock) begin
-    if (mem_write && mem_type == `MEM_RAM) begin
-      data[address] <= input_data;
-    end
-  end
+  assign should_stall = ~is_l1_ready;
+  assign should_write = mem_type != `MEM_ROM && mem_write;
+
+  l1 #(4, 32) l1(
+    .address(address),
+    .input_data(input_data),
+    .should_write(should_write),
+    .clock(clock),
+    .reset(reset),
+    .output_data(main_memory_output),
+    .ready(is_l1_ready)
+  );
 endmodule
