@@ -1,13 +1,13 @@
 module memory (
     input wire [31:0] address,
     input wire [31:0] input_data,
-    input wire [31:0] wb_peripheral_bus,
+    //input wire [31:0] wb_peripheral_bus,
     input wire mem_write,
     input wire mem_read,
     input wire mem_type,
     input wire clock,
-    output reg [31:0] output_data,
-    output wire [31:0] peripheral_bus
+    output reg [31:0] output_data = 0
+    //output wire [31:0] peripheral_bus
 );
 
   reg [31:0] ram[63:0];

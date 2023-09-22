@@ -7,7 +7,7 @@ module registers (
     input wire clock,
     output wire [31:0] rs1_data,
     output wire [31:0] rs2_data,
-    output wire [4:0] r1
+    output wire [31:0] r1
 );
   
   reg [31:0] registers[31:0];

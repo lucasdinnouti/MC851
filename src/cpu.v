@@ -25,11 +25,10 @@ module cpu (
   wire [31:0] id_rs2_data;
 
   wire alu_should_bypass_a, alu_should_bypass_b;
-  assign alu_should_bypass_a = wb_reg_write && wb_rd == ex_rs1;
-  assign alu_should_bypass_b = wb_reg_write && (wb_rd == ex_rs2 && ex_alu_use_rs2);
 
   wire [31:0] ex_rs1_data;
   wire [31:0] ex_rs2_data;
+  wire [31:0] ex_alu_a;
   wire [31:0] ex_alu_b;
   wire [4:0] ex_alu_op;
   wire [4:0] ex_rd;
@@ -49,14 +48,15 @@ module cpu (
   wire mem_reg_write;
   wire mem_mem_write;
   wire mem_mem_read;
-  wire mem_mem_op_length;
+  wire [2:0] mem_mem_op_length;
   wire [31:0] mem_mem_data;
 
   wire [31:0] wb_alu_result;
   wire [31:0] wb_rd_data;
   wire [4:0] wb_rd;
   wire wb_reg_write;
-  assign wb_rd_data = mem_read == 0 ? wb_alu_result : wb_mem_data;
+  wire [31:0] wb_mem_data;
+  assign wb_rd_data = wb_mem_read == 0 ? wb_alu_result : wb_mem_data;
 
   wire [31:0] r1;
 
@@ -65,6 +65,8 @@ module cpu (
   // assign led[4:0] = ~wb_alu_result[4:0];
 
   wire cpu_clock;
+
+  // Uncomment for uncontrolled clock
   assign cpu_clock = clock;
   
   // Uncomment for controlled clock  
@@ -75,12 +77,12 @@ module cpu (
   //   clock_counter <= clock_counter + 1;
   //   
   //   if (clock_counter == WAIT_TIME / 2) begin
-  //     controlled_clock <= 0;
+  //     cpu_clock <= 0;
   //   end
   // 
   //   if (clock_counter == WAIT_TIME) begin
   //     clock_counter <= 0;
-  //     controlled_clock <= 1;
+  //     cpu_clock <= 1;
   //   end
   // end
 
@@ -93,15 +95,16 @@ module cpu (
     .branch_type(id_branch_type)
   );
 
-  memory_controller instruction_memory (
+  memory instruction_memory (
       .address(pc >> 2),
       .input_data(0),
-      .wb_peripheral_bus(wb_peripheral_bus),
+      //.wb_peripheral_bus(wb_peripheral_bus),
+      .mem_read(1'b1),
       .mem_write(1'b0),
       .mem_type(`MEM_ROM),
       .clock(cpu_clock),
-      .output_data(if_instruction),
-      .peripheral_bus(peripheral_bus)
+      .output_data(if_instruction)
+      //.peripheral_bus(peripheral_bus)
   );
 
   if_id_pipeline_registers if_id_pipeline_registers (
@@ -123,7 +126,6 @@ module cpu (
     .mem_read(id_mem_read),
     .mem_op_length(id_mem_op_length),
     .branch_type(id_branch_type)
-
   );
 
   registers registers (
@@ -138,13 +140,13 @@ module cpu (
     .r1(r1)
   );
 
-  peripherals peripherals(
-    .peripheral_bus(peripheral_bus),
-    .btn(btn),
-    .photores(photores),
-    .led(led[4:0]),
-    .wb_peripheral_bus(wb_peripheral_bus)
-  );
+  //peripherals peripherals(
+  //  .peripheral_bus(peripheral_bus),
+  //  .btn(btn),
+  //  .photores(photores),
+  //  .led(led[4:0]),
+  //  .wb_peripheral_bus(wb_peripheral_bus)
+  //);
 
   id_ex_pipeline_registers id_ex_pipeline_registers (
     .clock(cpu_clock),
@@ -174,13 +176,14 @@ module cpu (
     .ex_mem_op_length(ex_mem_op_length)
   );
 
-  assign ex_alu_b = ex_alu_use_rs2 == 0 ? ex_immediate : ex_rs2_data;
+  assign alu_should_bypass_a = wb_reg_write && (wb_rd == ex_rs1);
+  assign alu_should_bypass_b = wb_reg_write && (wb_rd == ex_rs2 && ex_alu_use_rs2);
 
-  assign a_value = alu_should_bypass_a ? wb_alu_result : a;
-  assign b_value = alu_should_bypass_b ? wb_alu_result : b;
+  assign ex_alu_a = alu_should_bypass_a ? wb_alu_result : ex_rs1_data;
+  assign ex_alu_b = ex_alu_use_rs2 == 0 ? ex_immediate : (alu_should_bypass_b ? wb_alu_result : ex_rs2_data);
 
   alu alu (
-    .a(ex_rs1_data),
+    .a(ex_alu_a),
     .b(ex_alu_b),
     .op(ex_alu_op),
     .result(ex_alu_result)
@@ -208,10 +211,12 @@ module cpu (
       .address(mem_alu_result),
       .input_data(mem_rs2_data),
       .mem_write(mem_mem_write),
-      // .mem_read(mem_mem_read),
+      .mem_read(mem_mem_read),
       .mem_type(`MEM_RAM),
       .clock(cpu_clock),
       .output_data(mem_mem_data)
+      //.wb_peripheral_bus(wb_peripheral_bus),
+      //.peripheral_bus(peripheral_bus)
   );
 
   mem_wb_pipeline_registers mem_wb_pipeline_registers (

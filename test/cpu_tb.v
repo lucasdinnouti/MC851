@@ -1,6 +1,3 @@
-`include "test/cpu.v"
-`include "test/assert.v"
-
 `timescale 1 ns / 10 ps
 
 module cpu_tb;
@@ -18,7 +15,7 @@ module cpu_tb;
 
   integer i;
   initial begin
-    for (i = 0; i < 20; i = i + 1) begin
+    for (i = 0; i < 40; i = i + 1) begin
       #PERIOD;
       clock = ~clock;
       #PERIOD;
