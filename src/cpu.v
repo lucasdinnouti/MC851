@@ -27,6 +27,10 @@ module cpu (
   wire [31:0] alu_b;
   assign alu_b = alu_use_rs2 == 0 ? immediate : rs2_data;
 
+  wire alu_should_bypass_a, alu_should_bypass_b;
+  assign alu_should_bypass_a = wb_reg_write && wb_rd == ex_rs1;
+  assign alu_should_bypass_b = wb_reg_write && (wb_rd == ex_rs2 && ex_alu_use_rs2);
+
   wire zero;
   wire [31:0] result;
 
@@ -36,7 +40,10 @@ module cpu (
   wire [31:0] ex_b;
   wire [3:0] ex_op;
   wire [4:0] ex_rd;
+  wire [4:0] ex_rs1;
+  wire [4:0] ex_rs2;
   wire ex_reg_write;
+  wire ex_alu_use_rs2;
 
   wire [31:0] wb_alu_result;
   wire [4:0] wb_rd;
@@ -116,57 +123,70 @@ module cpu (
     .led(led[4:0])
   );
 
-  // id_ex_pipeline_registers id_ex_pipeline_registers (
-  //   .clock(controlled_clock),
-  //   .id_a(rs1_data),
-  //   .id_b(alu_b),
-  //   .id_op(alu_op),
-  //   .id_rd(rd),
-  //   .id_reg_write(reg_write),
-  //   .ex_a(ex_a),
-  //   .ex_b(ex_b),
-  //   .ex_op(ex_op),
-  //   .ex_rd(ex_rd),
-  //   .ex_reg_write(ex_reg_write)
-  // );
-
-  // alu alu (
-  //   .clock(clock),
-  //   .a(ex_a),
-  //   .b(ex_b),
-  //   .op(ex_op),
-  //   // .rd_bypass(wb_rd),
-  //   // .rd_data_bypass(wb_alu_result),
-  //   // .reg_write_bypass(wb_reg_write)
-  //   .zero(zero),
-  //   .result(result)
-  // );
+  id_ex_pipeline_registers id_ex_pipeline_registers (
+    .clock(controlled_clock),
+    .id_a(rs1_data),
+    .id_b(alu_b),
+    .id_op(alu_op),
+    .id_rd(rd),
+    .id_rs1(rs1),
+    .id_rs2(rs2),
+    .id_reg_write(reg_write),
+    .id_alu_use_rs2(alu_use_rs2),
+    .ex_a(ex_a),
+    .ex_b(ex_b),
+    .ex_op(ex_op),
+    .ex_rd(ex_rd),
+    .ex_rs1(ex_rs1),
+    .ex_rs2(ex_rs2),
+    .ex_reg_write(ex_reg_write),
+    .ex_alu_use_rs2(ex_alu_use_rs2)
+  );
 
   alu alu (
+<<<<<<< Updated upstream
     .a(rs1_data),
     .b(alu_b),
     .op(alu_op),
+=======
+    .clock(clock),
+    .a(ex_a),
+    .b(ex_b),
+    .op(ex_op),
+    .bypass_data(wb_alu_result),
+    .use_bypass_a(alu_should_bypass_a),
+    .use_bypass_b(alu_should_bypass_b),
+>>>>>>> Stashed changes
     .zero(zero),
     .result(result)
   );
 
-  // post_ex_pipeline_registers post_ex_pipeline_registers (
-  //   .clock(controlled_clock),
-  //   .ex_alu_result(result),
-  //   .ex_rd(ex_rd),
-  //   .ex_reg_write(ex_reg_write),
-  //   .wb_alu_result(wb_alu_result),
-  //   .wb_rd(wb_rd),
-  //   .wb_reg_write(wb_reg_write)
+  // alu alu (
+  //   .clock(clock),
+  //   .a(rs1_data),
+  //   .b(alu_b),
+  //   .op(alu_op),
+  //   .zero(zero),
+  //   .result(result)
   // );
 
   post_ex_pipeline_registers post_ex_pipeline_registers (
     .clock(controlled_clock),
     .ex_alu_result(result),
-    .ex_rd(rd),
-    .ex_reg_write(reg_write),
+    .ex_rd(ex_rd),
+    .ex_reg_write(ex_reg_write),
     .wb_alu_result(wb_alu_result),
     .wb_rd(wb_rd),
     .wb_reg_write(wb_reg_write)
   );
+
+  // post_ex_pipeline_registers post_ex_pipeline_registers (
+  //   .clock(controlled_clock),
+  //   .ex_alu_result(result),
+  //   .ex_rd(rd),
+  //   .ex_reg_write(reg_write),
+  //   .wb_alu_result(wb_alu_result),
+  //   .wb_rd(wb_rd),
+  //   .wb_reg_write(wb_reg_write)
+  // );
 endmodule

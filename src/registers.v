@@ -21,7 +21,10 @@ module registers (
   assign led[4:0] = ~registers[1][4:0];
 
   always @(negedge clock) begin
+<<<<<<< Updated upstream
     // led[4:0] <= ~registers[1][4:0];
+=======
+>>>>>>> Stashed changes
     if (reg_write) begin
       registers[rd] <= data;
     end

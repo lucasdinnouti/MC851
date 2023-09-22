@@ -17,6 +17,6 @@
     "externalFlashFiles": [
         "resources/test2.riscv"
     ],
-    "synthGowinOptions": ["-noalu", "-nowidelut", "-nolutram", "-nodffe"],
+    "synthGowinOptions": ["-nowidelut", "-nolutram", "-nodffe"],
     "nextPnrGowinOptions": ["--enable-globals", "--enable-auto-longwires"]
 }
