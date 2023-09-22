@@ -1,4 +1,4 @@
-module instruction_memory (
+module flash_memory (
   input wire [31:0] pc,
   output wire [31:0] instruction,
   input wire clock,

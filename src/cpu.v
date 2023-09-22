@@ -1,9 +1,13 @@
 module cpu (
     input wire clock,
+    input wire [1:0] photores,
     output wire [5:0] led
 );
   wire [31:0] pc;
   wire [31:0] if_instruction;
+
+  wire [31:0] peripheral_bus;
+  wire [31:0] wb_peripheral_bus;
 
   wire [31:0] id_instruction;
   wire [4:0] id_rs1;
@@ -52,8 +56,12 @@ module cpu (
   wire [31:0] wb_rd_data;
   wire [4:0] wb_rd;
   wire wb_reg_write;
+  assign wb_rd_data = mem_read == 0 ? wb_alu_result : wb_mem_data;
+
+  wire [31:0] r1;
 
   assign led[5] = ~pc[2];
+  // assign led[0] = ~r1[0];
   // assign led[4:0] = ~wb_alu_result[4:0];
 
   wire cpu_clock;
@@ -85,14 +93,15 @@ module cpu (
     .branch_type(id_branch_type)
   );
 
-  memory instruction_memory (
+  memory_controller instruction_memory (
       .address(pc >> 2),
       .input_data(0),
+      .wb_peripheral_bus(wb_peripheral_bus),
       .mem_write(1'b0),
-      .mem_read(1'b1),
       .mem_type(`MEM_ROM),
       .clock(cpu_clock),
-      .output_data(if_instruction)
+      .output_data(if_instruction),
+      .peripheral_bus(peripheral_bus)
   );
 
   if_id_pipeline_registers if_id_pipeline_registers (
@@ -114,6 +123,7 @@ module cpu (
     .mem_read(id_mem_read),
     .mem_op_length(id_mem_op_length),
     .branch_type(id_branch_type)
+
   );
 
   registers registers (
@@ -125,7 +135,15 @@ module cpu (
     .clock(cpu_clock),
     .rs1_data(id_rs1_data),
     .rs2_data(id_rs2_data),
-    .led(led[4:0])
+    .r1(r1)
+  );
+
+  peripherals peripherals(
+    .peripheral_bus(peripheral_bus),
+    .btn(btn),
+    .photores(photores),
+    .led(led[4:0]),
+    .wb_peripheral_bus(wb_peripheral_bus)
   );
 
   id_ex_pipeline_registers id_ex_pipeline_registers (
@@ -190,7 +208,7 @@ module cpu (
       .address(mem_alu_result),
       .input_data(mem_rs2_data),
       .mem_write(mem_mem_write),
-      .mem_read(mem_mem_read),
+      // .mem_read(mem_mem_read),
       .mem_type(`MEM_RAM),
       .clock(cpu_clock),
       .output_data(mem_mem_data)
@@ -209,7 +227,4 @@ module cpu (
     .wb_reg_write(wb_reg_write),
     .wb_mem_read(wb_mem_read)
   );
-
-  assign wb_rd_data = mem_read == 0 ? wb_alu_result : wb_mem_data;
-
 endmodule
