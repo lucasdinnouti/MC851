@@ -11,6 +11,7 @@ module memory_test (
     .input_data(0),
     .should_write(0),
     .clock(clock),
+    .reset(btn),
     .output_data(output_data),
     .ready(ready)
   );

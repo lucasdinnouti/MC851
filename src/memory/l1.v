@@ -3,6 +3,7 @@ module l1 (
   input wire [31:0] input_data,
   input wire should_write,
   input wire clock,
+  input wire reset,
   output reg [31:0] output_data,
   output wire ready
 );
@@ -29,32 +30,35 @@ module l1 (
   assign output_data = cache_hit ? lines[current_index] : main_memory_output;
   // assign ready = cache_hit && ~should_write ? 1 : main_memory_ready;
   assign ready = 1;
-
   integer i;
-  initial begin
-    for (i = 0; i < CACHE_LINES; i++) begin
-      valid[i] = 0;
-      lines[i] = 0;
-    end
-  end
 
   memory #(256) memory(
     .address(address),
     .input_data(input_data),
     .should_write(should_write),
     .clock(clock),
+    .reset(reset),
     .output_data(main_memory_output)
   );
 
-  always @(negedge clock) begin
-    if (should_write) begin
-      lines[current_index] <= input_data;
-      tags[current_index] <= current_tag;
-      valid[current_index] <= 1;
-    end else if (~cache_hit) begin
-      lines[current_index] <= main_memory_output;
-      tags[current_index] <= current_tag;
-      valid[current_index] <= 1;
+  always @(posedge reset) begin
+    for (i = 0; i < CACHE_LINES; i++) begin
+      valid[i] = 32'h00000000;
+      lines[i] = 32'h00000000;
     end
   end
+
+  always @(negedge clock) begin
+    // if (~reset) begin
+      if (should_write) begin
+        lines[current_index] <= input_data;
+        tags[current_index] <= current_tag;
+        valid[current_index] <= 1;
+      end else if (~cache_hit) begin
+        lines[current_index] <= main_memory_output;
+        tags[current_index] <= current_tag;
+        valid[current_index] <= 1;
+      end
+    end
+  // end
 endmodule
