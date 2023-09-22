@@ -39,6 +39,16 @@
     `assert(mem_read, 0, name, "mem_read"); \
     `assert(mem_op_length, expected_mem_op_length, name, "mem_op_length");
 
+`define assert_branch_instruction(name, expected_rs1, expected_rs2, expected_immediate,
+                                  expected_branch_type) \
+    `assert(rs1, expected_rs1, name, "rs1"); \
+    `assert(rs2, expected_rs2, name, "rs2"); \
+    `assert(immediate, expected_immediate, name, "immediate"); \
+    `assert(branch_type, expected_branch_type, name, "alu_op"); \
+    `assert(reg_write, 0, name, "reg_write"); \
+    `assert(mem_write, 0, name, "mem_write"); \
+    `assert(mem_read, 0, name, "mem_read");
+
 `timescale 1 ns / 10 ps
 
 module decoder_tb;
@@ -48,11 +58,12 @@ module decoder_tb;
   wire [4:0] rd;
   wire [31:0] immediate;
   wire alu_use_rs2;
-  wire [3:0] alu_op;
+  wire [4:0] alu_op;
   wire reg_write;
   wire mem_write;
   wire mem_read;
   wire [2:0] mem_op_length;
+  wire [2:0] branch_type;
 
   localparam PERIOD = 10;
 
@@ -67,7 +78,8 @@ module decoder_tb;
       .reg_write(reg_write),
       .mem_write(mem_write),
       .mem_read(mem_read),
-      .mem_op_length(mem_op_length)
+      .mem_op_length(mem_op_length),
+      .branch_type(branch_type)
   );
 
   initial begin
@@ -125,6 +137,16 @@ module decoder_tb;
     instruction = 32'h01ffffb3;
     #PERIOD;
     `assert_register_instruction("and", 31, 31, 31, `ALU_AND_OP);
+
+    // mul x10, x9, x8
+    instruction = 32'h02848533;
+    #PERIOD;
+    `assert_register_instruction("mul", 10, 9, 8, `ALU_MUL_OP);
+
+    // div x1, x1, x1
+    instruction = 32'h0210c0b3;
+    #PERIOD;
+    `assert_register_instruction("div", 1, 1, 1, `ALU_DIV_OP);
 
     // addi x5, x6, 7
     instruction = 32'h00730293;
@@ -210,5 +232,16 @@ module decoder_tb;
     instruction = 32'h02418023;
     #PERIOD;
     `assert_store_instruction("sb", 4, 32, 3, `MEM_BYTE);
+
+    // beq x1, x5, 4
+    instruction = 32'h00508263;
+    #PERIOD;
+    `assert_branch_instruction("beq", 1, 5, 4, `BRANCH_EQ);
+
+    // bne x7, x9, -4
+    instruction = 32'hfe939ee3;
+    #PERIOD;
+    `assert_branch_instruction("bne", 7, 9, -4, `BRANCH_NE);
+
   end
 endmodule

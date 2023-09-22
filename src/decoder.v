@@ -5,11 +5,12 @@ module decoder (
     output wire [4:0] rd,
     output reg [31:0] immediate,
     output wire alu_use_rs2,
-    output reg [3:0] alu_op,
+    output reg [4:0] alu_op,
     output wire reg_write,
     output wire mem_write,
     output wire mem_read,
-    output wire [2:0] mem_op_length
+    output wire [2:0] mem_op_length,
+    output reg [2:0] branch_type
 );
 
   wire [2:0] funct3;
@@ -34,9 +35,9 @@ module decoder (
       alu_op = `ALU_ADD_OP;
     end else if (opcode == `IMM_OP && funct3 != 3'b101) begin
       // Immediate instructions except for SRLI and SRAI
-      alu_op = {1'b0, funct3};
+      alu_op = {2'b00, funct3};
     end else begin
-      alu_op = {instruction[30], funct3};
+      alu_op = {instruction[25], instruction[30], funct3};
     end
 
     if (opcode == `IMM_OP && funct3 == 3'b101) begin
@@ -44,9 +45,17 @@ module decoder (
       immediate = instruction[24:20];
     end else if (opcode == `STORE_OP) begin
       immediate = $signed({instruction[31:25], instruction[11:7]});
+    end else if (opcode == `BRANCH_OP) begin
+      immediate = $signed({instruction[31:31], instruction[7:7], instruction[30:25],
+                           instruction[11:8], 1'b0});
     end else begin
       immediate = $signed(instruction[31:20]);
     end
-  end
 
+    if (opcode == `BRANCH_OP) begin
+      branch_type = funct3;
+    end else begin
+      branch_type = `BRANCH_NONE;
+    end
+  end
 endmodule
