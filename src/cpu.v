@@ -1,6 +1,7 @@
 module cpu (
     input wire clock,
     input wire btn,
+    input wire [1:0] photores,
     output wire flashClk,
     input wire flashMiso,
     output wire flashMosi,
@@ -12,6 +13,8 @@ module cpu (
 
   reg [31:0] pc = 0;
   wire [31:0] instruction;
+  wire [31:0] peripheral_bus;
+  wire [31:0] wb_peripheral_bus;
 
   wire [4:0] rs1;
   wire [4:0] rs2;
@@ -45,6 +48,8 @@ module cpu (
   wire [31:0] wb_alu_result;
   wire [4:0] wb_rd;
   wire wb_reg_write;
+
+  wire [31:0] r1;
 
   assign led[5] = ~pc[2];
   // assign led[4:0] = ~wb_alu_result[4:0];
@@ -84,10 +89,12 @@ module cpu (
   memory_controller instruction_memory (
       .address(pc >> 2),
       .input_data(0),
+      .wb_peripheral_bus(wb_peripheral_bus),
       .mem_write(1'b0),
       .mem_type(`MEM_ROM),
       .clock(clock),
-      .output_data(instruction)
+      .output_data(instruction),
+      .peripheral_bus(peripheral_bus)
   );
 
   if_id_pipeline_registers if_id_pipeline_registers (
@@ -120,7 +127,15 @@ module cpu (
     .clock(controlled_clock),
     .rs1_data(rs1_data),
     .rs2_data(rs2_data),
-    .led(led[4:0])
+    .r1(r1)
+  );
+
+  peripherals peripherals(
+    .peripheral_bus(peripheral_bus),
+    .btn(btn),
+    .photores(photores),
+    .led(led[4:0]),
+    .wb_peripheral_bus(wb_peripheral_bus)
   );
 
   // id_ex_pipeline_registers id_ex_pipeline_registers (

@@ -1,3 +1,9 @@
+IO_LOC  "photores[1]" 26;
+IO_PORT "photores[1]" DRIVE=8 IO_TYPE=LVCMOS33 PULL_MODE=DOWN;
+
+IO_LOC  "photores[0]" 25;
+IO_PORT "photores[0]" DRIVE=8 IO_TYPE=LVCMOS33 PULL_MODE=DOWN;
+
 IO_LOC  "clock" 52;
 IO_PORT "clock" IO_TYPE=LVCMOS33 PULL_MODE=UP;
 

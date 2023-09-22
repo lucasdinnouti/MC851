@@ -22,6 +22,7 @@
 `define IMM_OP 7'b0010011
 `define REG_OP 7'b0110011
 `define BRANCH_OP 7'b1100011
+`define ATOMIC_OP 7'b0101111
 
 `define MEM_WORD 3'b010
 `define MEM_HALF 3'b001
