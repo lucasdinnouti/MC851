@@ -24,14 +24,14 @@ module decoder (
   assign rd = instruction[11:7];
 
   assign mem_op_length = funct3;
-  assign reg_write = (opcode == `LOAD_OP || opcode == `REG_OP || opcode == `IMM_OP);
-  assign mem_read = (opcode == `LOAD_OP);
-  assign mem_write = (opcode == `STORE_OP);
+  assign reg_write = (opcode == `LOAD_OP || opcode == `REG_OP || opcode == `IMM_OP || opcode == `ATOMIC_OP);
+  assign mem_read = (opcode == `LOAD_OP || opcode == `ATOMIC_OP);
+  assign mem_write = (opcode == `STORE_OP || opcode == `ATOMIC_OP);
   assign alu_use_rs2 = (opcode == `REG_OP);
 
   always @* begin
-    if (opcode == `LOAD_OP || opcode == `STORE_OP) begin
-      // Load and store will add address with offset
+    if (opcode == `LOAD_OP || opcode == `STORE_OP || opcode == `ATOMIC_OP) begin
+      // Load, store and atomic will add address with offset
       alu_op = `ALU_ADD_OP;
     end else if (opcode == `IMM_OP && funct3 != 3'b101) begin
       // Immediate instructions except for SRLI and SRAI
@@ -48,6 +48,8 @@ module decoder (
     end else if (opcode == `BRANCH_OP) begin
       immediate = $signed({instruction[31:31], instruction[7:7], instruction[30:25],
                            instruction[11:8], 1'b0});
+    end else if (opcode == `ATOMIC_OP) begin
+      immediate = 0;
     end else begin
       immediate = $signed(instruction[31:20]);
     end
