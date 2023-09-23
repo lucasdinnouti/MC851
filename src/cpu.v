@@ -4,6 +4,7 @@ module cpu (
     output wire [5:0] led
 );
   wire [31:0] pc;
+  wire [31:0] if_fetched_instruction;
   wire [31:0] if_instruction;
 
   wire [31:0] peripheral_bus;
@@ -23,6 +24,7 @@ module cpu (
   wire [2:0] id_branch_type;
   wire [31:0] id_rs1_data;
   wire [31:0] id_rs2_data;
+  wire id_should_branch;
 
   wire alu_should_bypass_a, alu_should_bypass_b;
 
@@ -92,7 +94,8 @@ module cpu (
     .rs1_data(id_rs1_data),
     .rs2_data(id_rs2_data),
     .immediate(id_immediate),
-    .branch_type(id_branch_type)
+    .branch_type(id_branch_type),
+    .should_branch(id_should_branch)
   );
 
   memory instruction_memory (
@@ -103,9 +106,11 @@ module cpu (
       .mem_write(1'b0),
       .mem_type(`MEM_ROM),
       .clock(cpu_clock),
-      .output_data(if_instruction)
+      .output_data(if_fetched_instruction)
       //.peripheral_bus(peripheral_bus)
   );
+
+  assign if_instruction = id_should_branch == 1 ? 32'b0 : if_fetched_instruction;
 
   if_id_pipeline_registers if_id_pipeline_registers (
     .clock(cpu_clock),
