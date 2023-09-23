@@ -21,10 +21,11 @@ module cpu (
   wire id_mem_write;
   wire id_mem_read;
   wire [2:0] id_mem_op_length;
-  wire [2:0] id_branch_type;
+  wire [3:0] id_branch_type;
   wire [31:0] id_rs1_data;
   wire [31:0] id_rs2_data;
   wire id_should_branch;
+  wire [31:0] id_pc;
 
   wire alu_should_bypass_a, alu_should_bypass_b;
 
@@ -43,8 +44,12 @@ module cpu (
   wire ex_mem_write;
   wire ex_mem_read;
   wire [2:0] ex_mem_op_length;
+  wire [31:0] ex_pc;
+  wire [3:0] ex_branch_type;
+  wire [31:0] ex_next_instruction_address;
+  wire [31:0] ex_result;
 
-  wire [31:0] mem_alu_result;
+  wire [31:0] mem_result;
   wire [31:0] mem_rs2_data;
   wire [4:0] mem_rd;
   wire mem_reg_write;
@@ -53,18 +58,17 @@ module cpu (
   wire [2:0] mem_mem_op_length;
   wire [31:0] mem_mem_data;
 
-  wire [31:0] wb_alu_result;
+  wire [31:0] wb_result;
   wire [31:0] wb_rd_data;
   wire [4:0] wb_rd;
   wire wb_reg_write;
   wire [31:0] wb_mem_data;
-  assign wb_rd_data = wb_mem_read == 0 ? wb_alu_result : wb_mem_data;
 
   wire [31:0] r1;
 
   assign led[5] = ~pc[2];
   // assign led[0] = ~r1[0];
-  // assign led[4:0] = ~wb_alu_result[4:0];
+  // assign led[4:0] = ~wb_result[4:0];
 
   wire cpu_clock;
 
@@ -115,7 +119,9 @@ module cpu (
   if_id_pipeline_registers if_id_pipeline_registers (
     .clock(cpu_clock),
     .if_instruction(if_instruction),
-    .id_instruction(id_instruction)
+    .if_pc(pc),
+    .id_instruction(id_instruction),
+    .id_pc(id_pc)
   );
 
   decoder decoder (
@@ -167,6 +173,8 @@ module cpu (
     .id_mem_write(id_mem_write),
     .id_mem_read(id_mem_read),
     .id_mem_op_length(id_mem_op_length),
+    .id_pc(id_pc),
+    .id_branch_type(id_branch_type),
     .ex_rs1_data(ex_rs1_data),
     .ex_rs2_data(ex_rs2_data),
     .ex_alu_op(ex_alu_op),
@@ -178,7 +186,9 @@ module cpu (
     .ex_immediate(ex_immediate),
     .ex_mem_write(ex_mem_write),
     .ex_mem_read(ex_mem_read),
-    .ex_mem_op_length(ex_mem_op_length)
+    .ex_mem_op_length(ex_mem_op_length),
+    .ex_pc(ex_pc),
+    .ex_branch_type(ex_branch_type)
   );
 
   forwarding forwarding(
@@ -191,7 +201,7 @@ module cpu (
     .mem_reg_write(mem_reg_write),
     .mem_mem_read(mem_mem_read),
     .mem_rd(mem_rd),
-    .mem_alu_result(mem_alu_result),
+    .mem_result(mem_result),
     .mem_mem_data(mem_mem_data),
     .wb_rd(wb_rd),
     .wb_rd_data(wb_rd_data),
@@ -207,16 +217,19 @@ module cpu (
     .result(ex_alu_result)
   );
 
+  assign ex_next_instruction_address = ex_pc + 4;
+  assign ex_result = (ex_branch_type == `BRANCH_JAL || ex_branch_type == `BRANCH_JALR) ? ex_next_instruction_address : ex_alu_result;
+
   ex_mem_pipeline_registers ex_mem_pipeline_registers(
     .clock(cpu_clock),
-    .ex_alu_result(ex_alu_result),
+    .ex_result(ex_result),
     .ex_rs2_data(ex_rs2_data),
     .ex_rd(ex_rd),
     .ex_reg_write(ex_reg_write),
     .ex_mem_write(ex_mem_write),
     .ex_mem_read(ex_mem_read),
     .ex_mem_op_length(ex_mem_op_length),
-    .mem_alu_result(mem_alu_result),
+    .mem_result(mem_result),
     .mem_rs2_data(mem_rs2_data),
     .mem_rd(mem_rd),
     .mem_reg_write(mem_reg_write),
@@ -226,7 +239,7 @@ module cpu (
   );
 
   memory data_memory (
-      .address(mem_alu_result),
+      .address(mem_result),
       .input_data(mem_rs2_data),
       .mem_write(mem_mem_write),
       .mem_read(mem_mem_read),
@@ -239,15 +252,18 @@ module cpu (
 
   mem_wb_pipeline_registers mem_wb_pipeline_registers (
     .clock(cpu_clock),
-    .mem_alu_result(mem_alu_result),
+    .mem_result(mem_result),
     .mem_mem_data(mem_mem_data),
     .mem_rd(mem_rd),
     .mem_reg_write(mem_reg_write),
     .mem_mem_read(mem_mem_read),
-    .wb_alu_result(wb_alu_result),
+    .wb_result(wb_result),
     .wb_mem_data(wb_mem_data),
     .wb_rd(wb_rd),
     .wb_reg_write(wb_reg_write),
     .wb_mem_read(wb_mem_read)
   );
+
+  assign wb_rd_data = wb_mem_read == 0 ? wb_result : wb_mem_data;
+
 endmodule

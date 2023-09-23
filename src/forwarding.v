@@ -8,7 +8,7 @@ module forwarding (
     input wire mem_reg_write,
     input wire mem_mem_read,
     input wire [4:0] mem_rd,
-    input wire [31:0] mem_alu_result,
+    input wire [31:0] mem_result,
     input wire [31:0] mem_mem_data,
     input wire [4:0] wb_rd,
     input wire [31:0] wb_rd_data,
@@ -32,7 +32,7 @@ module forwarding (
 
   always @* begin
     if (should_bypass_mem_a) begin
-        alu_a = mem_alu_result;
+        alu_a = mem_result;
     end else if (should_bypass_mem_read_a) begin
         alu_a = mem_mem_data;
     end else if (should_bypass_wb_a) begin
@@ -44,7 +44,7 @@ module forwarding (
     if (ex_alu_use_rs2 == 0) begin
         alu_b = ex_immediate;
     end else if (should_bypass_mem_b) begin
-        alu_b = mem_alu_result;
+        alu_b = mem_result;
     end else if (should_bypass_mem_read_b) begin
         alu_b = mem_mem_data;
     end else if (should_bypass_wb_b) begin

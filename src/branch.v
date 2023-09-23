@@ -4,7 +4,7 @@ module branch (
     input wire [31:0] rs1_data,
     input wire [31:0] rs2_data,
     input wire [31:0] immediate,
-    input wire [2:0] branch_type,
+    input wire [3:0] branch_type,
     output wire should_branch
 );
   reg [31:0] pc_reg = -4;
@@ -22,6 +22,8 @@ module branch (
       `BRANCH_GE: should_branch_reg = ($signed(rs1_data) >= $signed(rs2_data));
       `BRANCH_LTU: should_branch_reg = (rs1_data < rs2_data);
       `BRANCH_GEU: should_branch_reg = (rs1_data >= rs2_data);
+      `BRANCH_JAL: should_branch_reg = 1;
+      `BRANCH_JALR: should_branch_reg = 1;
       default: should_branch_reg = 0;
     endcase
   end
@@ -29,7 +31,8 @@ module branch (
   always @(posedge clock) begin
     if (should_branch_reg) begin
       // Subtract 4 because the current branch instruction is on the second stage
-      pc_reg = pc_reg + immediate - 4;
+      // Add rs1 data if the instruction is a jalr
+      pc_reg = pc_reg + immediate - 4 + (branch_type == `BRANCH_JALR ? rs1_data : 0);
     end else begin
       pc_reg = pc_reg + 4;
     end
