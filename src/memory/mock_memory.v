@@ -36,16 +36,16 @@ module memory (
     // addi x1, x1, -5
     // add x10, x0, x1
     // x10 == 56
-    // rom[0] = 32'h00100113;
-    // rom[1] = 32'h00200193;
-    // rom[2] = 32'h003100b3;
-    // rom[3] = 32'h00100533;
-    // rom[4] = 32'h402080b3;
-    // rom[5] = 32'h00100533;
-    // rom[6] = 32'h03f0c093;
-    // rom[7] = 32'h00100533;
-    // rom[8] = 32'hffb08093;
-    // rom[9] = 32'h00100533;
+    rom[0] = 32'h00100113;
+    rom[1] = 32'h00200193;
+    rom[2] = 32'h003100b3;
+    rom[3] = 32'h00100533;
+    rom[4] = 32'h402080b3;
+    rom[5] = 32'h00100533;
+    rom[6] = 32'h03f0c093;
+    rom[7] = 32'h00100533;
+    rom[8] = 32'hffb08093;
+    rom[9] = 32'h00100533;
 
     //ram[63] = 32'b00000000000000000000000000000001;
   end
@@ -57,7 +57,7 @@ module memory (
         `MEM_RAM: ram[address] = input_data;
       endcase
     end
-    ram[63] = wb_peripheral_bus;
+   // ram[63] = wb_peripheral_bus;
 
   end
   always @(negedge clock) begin
@@ -67,6 +67,6 @@ module memory (
         `MEM_RAM: output_data = ram[address];
       endcase
     end
-    peripheral_bus[31:0] = ram[63];
+    //peripheral_bus[31:0] = ram[63];
   end
 endmodule

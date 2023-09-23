@@ -176,11 +176,24 @@ module cpu (
     .ex_mem_op_length(ex_mem_op_length)
   );
 
-  assign alu_should_bypass_a = wb_reg_write && (wb_rd == ex_rs1);
-  assign alu_should_bypass_b = wb_reg_write && (wb_rd == ex_rs2 && ex_alu_use_rs2);
-
-  assign ex_alu_a = alu_should_bypass_a ? wb_alu_result : ex_rs1_data;
-  assign ex_alu_b = ex_alu_use_rs2 == 0 ? ex_immediate : (alu_should_bypass_b ? wb_alu_result : ex_rs2_data);
+  forwarding forwarding(
+    .ex_rs1_data(ex_rs1_data),
+    .ex_rs2_data(ex_rs2_data),
+    .ex_immediate(ex_immediate),
+    .ex_rs1(ex_rs1),
+    .ex_rs2(ex_rs2),
+    .ex_alu_use_rs2(ex_alu_use_rs2),
+    .mem_reg_write(mem_reg_write),
+    .mem_mem_read(mem_mem_read),
+    .mem_rd(mem_rd),
+    .mem_alu_result(mem_alu_result),
+    .mem_mem_data(mem_mem_data),
+    .wb_rd(wb_rd),
+    .wb_rd_data(wb_rd_data),
+    .wb_reg_write(wb_reg_write),
+    .alu_a(ex_alu_a),
+    .alu_b(ex_alu_b)
+  );
 
   alu alu (
     .a(ex_alu_a),
