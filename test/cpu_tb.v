@@ -21,6 +21,6 @@ module cpu_tb;
       #PERIOD;
       clock = ~clock;
     end
-    //`assert(cpu.result, 6, "cpu last result");
+    //`assert(cpu.r1, 15, "cpu r1");
   end
 endmodule

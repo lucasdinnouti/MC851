@@ -14,6 +14,7 @@ module id_ex_pipeline_registers(
   input wire [2:0] id_mem_op_length,
   input wire [31:0] id_pc,
   input wire [3:0] id_branch_type,
+  input wire stall,
   output wire [31:0] ex_rs1_data,
   output wire [31:0] ex_rs2_data,
   output wire [4:0] ex_alu_op,
@@ -42,7 +43,7 @@ module id_ex_pipeline_registers(
   reg mem_read = 0;
   reg [2:0] mem_op_length = 0;
   reg [31:0] pc = 0;
-  reg [3:0] branch_type = 0;
+  reg [3:0] branch_type = `BRANCH_NONE;
 
   assign ex_rs1_data = rs1_data;
   assign ex_rs2_data = rs2_data;
@@ -60,19 +61,36 @@ module id_ex_pipeline_registers(
   assign ex_branch_type = branch_type;
 
   always @(posedge clock) begin
-    rs1_data <= id_rs1_data;
-    rs2_data <= id_rs2_data;
-    alu_op <= id_alu_op;
-    rd <= id_rd;
-    rs1 <= id_rs1;
-    rs2 <= id_rs2;
-    reg_write <= id_reg_write;
-    alu_use_rs2 <= id_alu_use_rs2;
-    immediate <= id_immediate;
-    mem_write <= id_mem_write;
-    mem_read <= id_mem_read;
-    mem_op_length <= id_mem_op_length;
-    pc <= id_pc;
-    branch_type <= id_branch_type;
+    if (stall) begin
+      rs1_data <= 0;
+      rs2_data <= 0;
+      alu_op <= 0;
+      rd <= 0;
+      rs1 <= 0;
+      rs2 <= 0;
+      reg_write <= 0;
+      alu_use_rs2 <= 0;
+      immediate <= 0;
+      mem_write <= 0;
+      mem_read <= 0;
+      mem_op_length <= 0;
+      pc <= 0;
+      branch_type <= `BRANCH_NONE;
+    end else begin 
+      rs1_data <= id_rs1_data;
+      rs2_data <= id_rs2_data;
+      alu_op <= id_alu_op;
+      rd <= id_rd;
+      rs1 <= id_rs1;
+      rs2 <= id_rs2;
+      reg_write <= id_reg_write;
+      alu_use_rs2 <= id_alu_use_rs2;
+      immediate <= id_immediate;
+      mem_write <= id_mem_write;
+      mem_read <= id_mem_read;
+      mem_op_length <= id_mem_op_length;
+      pc <= id_pc;
+      branch_type <= id_branch_type;
+    end
   end
 endmodule

@@ -3,8 +3,7 @@ module cpu (
     input wire [1:0] photores,
     output wire [5:0] led
 );
-  wire [31:0] pc;
-  wire [31:0] if_fetched_instruction;
+  wire [31:0] if_pc;
   wire [31:0] if_instruction;
 
   wire [31:0] peripheral_bus;
@@ -24,14 +23,15 @@ module cpu (
   wire [3:0] id_branch_type;
   wire [31:0] id_rs1_data;
   wire [31:0] id_rs2_data;
-  wire id_should_branch;
+  wire ex_should_branch;
   wire [31:0] id_pc;
 
   wire alu_should_bypass_a, alu_should_bypass_b;
 
   wire [31:0] ex_rs1_data;
   wire [31:0] ex_rs2_data;
-  wire [31:0] ex_alu_a;
+  wire [31:0] ex_rs1_data_forwarded;
+  wire [31:0] ex_rs2_data_forwarded;
   wire [31:0] ex_alu_b;
   wire [4:0] ex_alu_op;
   wire [4:0] ex_rd;
@@ -50,7 +50,7 @@ module cpu (
   wire [31:0] ex_result;
 
   wire [31:0] mem_result;
-  wire [31:0] mem_rs2_data;
+  wire [31:0] mem_rs2_data_forwarded;
   wire [4:0] mem_rd;
   wire mem_reg_write;
   wire mem_mem_write;
@@ -66,7 +66,7 @@ module cpu (
 
   wire [31:0] r1;
 
-  assign led[5] = ~pc[2];
+  assign led[5] = ~if_pc[2];
   // assign led[0] = ~r1[0];
   // assign led[4:0] = ~wb_result[4:0];
 
@@ -93,35 +93,35 @@ module cpu (
   // end
 
   branch branch (
-    .pc(pc),
+    .id_pc(id_pc),
     .clock(cpu_clock),
-    .rs1_data(id_rs1_data),
-    .rs2_data(id_rs2_data),
-    .immediate(id_immediate),
-    .branch_type(id_branch_type),
-    .should_branch(id_should_branch)
+    .rs1_data(ex_rs1_data_forwarded),
+    .rs2_data(ex_rs2_data_forwarded),
+    .immediate(ex_immediate),
+    .branch_type(ex_branch_type),
+    .if_pc(if_pc),
+    .should_branch(ex_should_branch)
   );
 
   memory instruction_memory (
-      .address(pc >> 2),
+      .address(if_pc >> 2),
       .input_data(0),
       //.wb_peripheral_bus(wb_peripheral_bus),
       .mem_read(1'b1),
       .mem_write(1'b0),
       .mem_type(`MEM_ROM),
       .clock(cpu_clock),
-      .output_data(if_fetched_instruction)
+      .output_data(if_instruction)
       //.peripheral_bus(peripheral_bus)
   );
-
-  assign if_instruction = id_should_branch == 1 ? 32'b0 : if_fetched_instruction;
 
   if_id_pipeline_registers if_id_pipeline_registers (
     .clock(cpu_clock),
     .if_instruction(if_instruction),
-    .if_pc(pc),
+    .if_pc(if_pc),
     .id_instruction(id_instruction),
-    .id_pc(id_pc)
+    .id_pc(id_pc),
+    .stall(ex_should_branch)
   );
 
   decoder decoder (
@@ -188,7 +188,8 @@ module cpu (
     .ex_mem_read(ex_mem_read),
     .ex_mem_op_length(ex_mem_op_length),
     .ex_pc(ex_pc),
-    .ex_branch_type(ex_branch_type)
+    .ex_branch_type(ex_branch_type),
+    .stall(ex_should_branch)
   );
 
   forwarding forwarding(
@@ -206,12 +207,14 @@ module cpu (
     .wb_rd(wb_rd),
     .wb_rd_data(wb_rd_data),
     .wb_reg_write(wb_reg_write),
-    .alu_a(ex_alu_a),
-    .alu_b(ex_alu_b)
+    .rs1_data_forwarded(ex_rs1_data_forwarded),
+    .rs2_data_forwarded(ex_rs2_data_forwarded)
   );
 
+  assign ex_alu_b = (ex_alu_use_rs2 == 0) ? ex_immediate : ex_rs2_data_forwarded;
+
   alu alu (
-    .a(ex_alu_a),
+    .a(ex_rs1_data_forwarded),
     .b(ex_alu_b),
     .op(ex_alu_op),
     .result(ex_alu_result)
@@ -223,14 +226,14 @@ module cpu (
   ex_mem_pipeline_registers ex_mem_pipeline_registers(
     .clock(cpu_clock),
     .ex_result(ex_result),
-    .ex_rs2_data(ex_rs2_data),
+    .ex_rs2_data_forwarded(ex_rs2_data_forwarded),
     .ex_rd(ex_rd),
     .ex_reg_write(ex_reg_write),
     .ex_mem_write(ex_mem_write),
     .ex_mem_read(ex_mem_read),
     .ex_mem_op_length(ex_mem_op_length),
     .mem_result(mem_result),
-    .mem_rs2_data(mem_rs2_data),
+    .mem_rs2_data_forwarded(mem_rs2_data_forwarded),
     .mem_rd(mem_rd),
     .mem_reg_write(mem_reg_write),
     .mem_mem_write(mem_mem_write),
@@ -240,7 +243,7 @@ module cpu (
 
   memory data_memory (
       .address(mem_result),
-      .input_data(mem_rs2_data),
+      .input_data(mem_rs2_data_forwarded),
       .mem_write(mem_mem_write),
       .mem_read(mem_mem_read),
       .mem_type(`MEM_RAM),

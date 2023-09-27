@@ -13,8 +13,8 @@ module forwarding (
     input wire [4:0] wb_rd,
     input wire [31:0] wb_rd_data,
     input wire wb_reg_write,
-    output reg [31:0] alu_a,
-    output reg [31:0] alu_b
+    output reg [31:0] rs1_data_forwarded,
+    output reg [31:0] rs2_data_forwarded
 );
   wire should_bypass_wb_a;
   wire should_bypass_wb_b;
@@ -32,25 +32,23 @@ module forwarding (
 
   always @* begin
     if (should_bypass_mem_a) begin
-        alu_a = mem_result;
+        rs1_data_forwarded = mem_result;
     end else if (should_bypass_mem_read_a) begin
-        alu_a = mem_mem_data;
+        rs1_data_forwarded = mem_mem_data;
     end else if (should_bypass_wb_a) begin
-        alu_a = wb_rd_data;
+        rs1_data_forwarded = wb_rd_data;
     end else begin
-        alu_a = ex_rs1_data;
+        rs1_data_forwarded = ex_rs1_data;
     end
 
-    if (ex_alu_use_rs2 == 0) begin
-        alu_b = ex_immediate;
-    end else if (should_bypass_mem_b) begin
-        alu_b = mem_result;
+    if (should_bypass_mem_b) begin
+        rs2_data_forwarded = mem_result;
     end else if (should_bypass_mem_read_b) begin
-        alu_b = mem_mem_data;
+        rs2_data_forwarded = mem_mem_data;
     end else if (should_bypass_wb_b) begin
-        alu_b = wb_rd_data;
+        rs2_data_forwarded = wb_rd_data;
     end else begin
-        alu_b = ex_rs2_data;
+        rs2_data_forwarded = ex_rs2_data;
     end
   end
 endmodule

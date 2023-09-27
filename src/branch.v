@@ -1,16 +1,15 @@
 module branch (
-    inout wire [31:0] pc,
+    input wire [31:0] id_pc,
     input wire clock,
     input wire [31:0] rs1_data,
     input wire [31:0] rs2_data,
     input wire [31:0] immediate,
     input wire [3:0] branch_type,
+    output reg [31:0] if_pc,
     output wire should_branch
 );
-  reg [31:0] pc_reg = -4;
   reg should_branch_reg = 0;
   
-  assign pc = pc_reg;
   assign should_branch = should_branch_reg;
 
   always @* begin
@@ -26,15 +25,16 @@ module branch (
       `BRANCH_JALR: should_branch_reg = 1;
       default: should_branch_reg = 0;
     endcase
-  end
 
-  always @(posedge clock) begin
     if (should_branch_reg) begin
-      // Subtract 4 because the current branch instruction is on the second stage
-      // Add rs1 data if the instruction is a jalr
-      pc_reg = pc_reg + immediate - 4 + (branch_type == `BRANCH_JALR ? rs1_data : 0);
+      if (branch_type == `BRANCH_JALR) begin
+        if_pc = rs1_data + immediate;
+      end else begin
+        // Subtract 8 because the current branch instruction is on the third stage
+        if_pc = (id_pc - 4) + immediate;
+      end
     end else begin
-      pc_reg = pc_reg + 4;
+      if_pc = id_pc + 4;
     end
   end
 endmodule

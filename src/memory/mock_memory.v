@@ -20,29 +20,51 @@ module memory (
       rom[i] = 0;
     end
 
-    // 5:  00011
-    // 7:  00010
-    // 9:  11101
-    // 11: 11000
-
-    // addi x1, x0, 3
-    // addi x2, x0, 0
-    // loop:
-    // add x2, x2, x1
-    // addi x1, x1, -1
-    // bne x1, x0, loop
-    // add x2, x2, 1
-    // add x2, x2, x0
-    // jal x3, +8
-    // x2 == 7, x3 == 32
-    rom[0] = 32'h00300093;
-    rom[1] = 32'h00000113;
-    rom[2] = 32'h00110133;
-    rom[3] = 32'hfff08093;
-    rom[4] = 32'hfe009ce3;
-    rom[5] = 32'h00110113;
-    rom[6] = 32'h00010133;
-    rom[7] = 32'h00c001ef;
+    
+    // main:
+    // 0:  addi x5, zero, 3
+    // 4:  sw x5, 0(zero)
+    // 8:  jal x1, function
+    // 12:  addi x5, zero, 10
+    // 16:  mul x10, x10, x5
+    // 20:  addi x5, zero, 100
+    // 24:  beq x10, x5, success
+    // 28:  j fail
+    // function:
+    // 32:  lw x5, 0(zero)
+    // 36:  addi x10, zero, 0
+    //   loop:
+    // 40:    add x10, x10, x5
+    // 44:    addi x5, x5, -1
+    // 48:    bne x5, zero, loop
+    // 52:  addi x10, x10, 4
+    // 56:  jalr zero, x1, 0
+    // 60:  j fail
+    // success:
+    // 64:  addi x1, zero, 15
+    // 68:  j end
+    // fail:
+    // 72:  addi x1, zero, 8
+    //   end:
+    rom[0] = 32'h00300293;
+    rom[1] = 32'h00502023;
+    rom[2] = 32'h018000ef;
+    rom[3] = 32'h00a00293;
+    rom[4] = 32'h02550533;
+    rom[5] = 32'h06400293;
+    rom[6] = 32'h02550463;
+    rom[7] = 32'h02c0006f;
+    rom[8] = 32'h00002283;
+    rom[9] = 32'h00000513;
+    rom[10] = 32'h00550533;
+    rom[11] = 32'hfff28293;
+    rom[12] = 32'hfe029ce3;
+    rom[13] = 32'h00450513;
+    rom[14] = 32'h00008067;
+    rom[15] = 32'h00c0006f;
+    rom[16] = 32'h00f00093;
+    rom[17] = 32'h0080006f;
+    rom[18] = 32'h00800093;
 
     //ram[63] = 32'b00000000000000000000000000000001;
   end

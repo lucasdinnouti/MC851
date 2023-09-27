@@ -21,7 +21,7 @@ module registers (
   assign r1 = registers[1];
 
   always @(negedge clock) begin
-    if (reg_write) begin
+    if (reg_write && rd != 0) begin
       registers[rd] <= data;
     end
   end
