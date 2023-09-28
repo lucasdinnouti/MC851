@@ -3,7 +3,7 @@ module memory (
   input wire [31:0] input_data,
   input wire should_write,
   input wire clock,
-  output reg [31:0] output_data,
+  output reg [31:0] output_data
   // output wire ready
 );
   integer i;

@@ -23,6 +23,8 @@
 `define REG_OP 7'b0110011
 `define BRANCH_OP 7'b1100011
 `define ATOMIC_OP 7'b0101111
+`define JAL_OP 7'b1101111
+`define JALR_OP 7'b1100111
 
 `define MEM_WORD 3'b010
 `define MEM_HALF 3'b001
@@ -35,10 +37,12 @@
 `define MEM_ROM 1'b0
 `define MEM_RAM 1'b1
 
-`define BRANCH_EQ 3'b000
-`define BRANCH_NE 3'b001
-`define BRANCH_NONE 3'b010
-`define BRANCH_LT 3'b100
-`define BRANCH_GE 3'b101
-`define BRANCH_LTU 3'b110
-`define BRANCH_GEU 3'b111
+`define BRANCH_EQ 4'b0000
+`define BRANCH_NE 4'b0001
+`define BRANCH_NONE 4'b0010
+`define BRANCH_LT 4'b0100
+`define BRANCH_GE 4'b0101
+`define BRANCH_LTU 4'b0110
+`define BRANCH_GEU 4'b0111
+`define BRANCH_JAL 4'b1000
+`define BRANCH_JALR 4'b1001

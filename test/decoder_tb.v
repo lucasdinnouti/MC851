@@ -44,7 +44,7 @@
     `assert(rs1, expected_rs1, name, "rs1"); \
     `assert(rs2, expected_rs2, name, "rs2"); \
     `assert(immediate, expected_immediate, name, "immediate"); \
-    `assert(branch_type, expected_branch_type, name, "alu_op"); \
+    `assert(branch_type, expected_branch_type, name, "branch_type"); \
     `assert(reg_write, 0, name, "reg_write"); \
     `assert(mem_write, 0, name, "mem_write"); \
     `assert(mem_read, 0, name, "mem_read");
@@ -63,7 +63,7 @@ module decoder_tb;
   wire mem_write;
   wire mem_read;
   wire [2:0] mem_op_length;
-  wire [2:0] branch_type;
+  wire [3:0] branch_type;
 
   localparam PERIOD = 10;
 

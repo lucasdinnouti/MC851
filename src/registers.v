@@ -7,7 +7,7 @@ module registers (
     input wire clock,
     output wire [31:0] rs1_data,
     output wire [31:0] rs2_data,
-    output wire [4:0] r1
+    output wire [31:0] r1
 );
   
   reg [31:0] registers[31:0];
@@ -21,7 +21,7 @@ module registers (
   assign r1 = registers[1];
 
   always @(negedge clock) begin
-    if (reg_write) begin
+    if (reg_write && rd != 0) begin
       registers[rd] <= data;
     end
   end
