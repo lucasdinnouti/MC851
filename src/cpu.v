@@ -1,7 +1,7 @@
 module cpu (
-    input wire clock,
-    input wire [1:0] photores,
-    output wire [5:0] led
+  input wire clock,
+  input wire [1:0] photores,
+  output wire [5:0] led
 );
   wire [31:0] if_pc;
   wire [31:0] if_instruction;
@@ -92,6 +92,19 @@ module cpu (
   //   end
   // end
 
+  memory_controller memory_controller (
+    .l1i_address(),
+    .l1d_address(),
+    .l1d_input_data(),
+    .l1d_mem_write(),
+    .l1d_mem_read(),
+    .clock(cpu_clock),
+    .l1i_output_data(),
+    .l1d_output_data(),
+    .stall_l1i(),
+    .stall_l1d()
+  );
+
   branch branch (
     .id_pc(id_pc),
     .clock(cpu_clock),
@@ -103,16 +116,15 @@ module cpu (
     .should_branch(ex_should_branch)
   );
 
-  memory instruction_memory (
-      .address(if_pc >> 2),
-      .input_data(0),
-      //.wb_peripheral_bus(wb_peripheral_bus),
-      .mem_read(1'b1),
-      .mem_write(1'b0),
-      .mem_type(`MEM_ROM),
-      .clock(cpu_clock),
-      .output_data(if_instruction)
-      //.peripheral_bus(peripheral_bus)
+  l1i l1 (
+    .address(if_pc >> 2),
+    .input_data(0),
+    .should_write(0),
+    .memory_controller_output_data(),
+    .memory_controller_ready(),
+    .clock(cpu_clock),
+    .output_data(if_instruction),
+    .ready()
   );
 
   if_id_pipeline_registers if_id_pipeline_registers (
@@ -241,16 +253,16 @@ module cpu (
     .mem_mem_op_length(mem_mem_op_length)
   );
 
-  memory data_memory (
-      .address(mem_result),
-      .input_data(mem_rs2_data_forwarded),
-      .mem_write(mem_mem_write),
-      .mem_read(mem_mem_read),
-      .mem_type(`MEM_RAM),
-      .clock(cpu_clock),
-      .output_data(mem_mem_data)
-      //.wb_peripheral_bus(wb_peripheral_bus),
-      //.peripheral_bus(peripheral_bus)
+  // mem_mem_read
+  l1d l1 (
+    .address(mem_result),
+    .input_data(mem_rs2_data_forwarded),
+    .should_write(mem_mem_write),
+    .memory_controller_output_data(),
+    .memory_controller_ready(),
+    .clock(cpu_clock),
+    .output_data(mem_mem_data),
+    .ready()
   );
 
   mem_wb_pipeline_registers mem_wb_pipeline_registers (
