@@ -1,26 +1,36 @@
 module memory_controller (
-  input wire [31:0] address,
-  input wire [31:0] input_data,
-  input wire mem_write,
-  input wire mem_type,
+  input wire [31:0] l1i_address,
+  input wire [31:0] l1d_address,
+  input wire [31:0] l1d_input_data,
+  input wire l1i_mem_read,
+  input wire l1d_mem_write,
+  input wire l1d_mem_read,
   input wire clock,
-  input wire reset,
-  output reg [31:0] output_data,
-  output wire should_stall
+  output wire [31:0] output_data,
+  output wire stall_l1i,
+  output wire stall_l1d
 );
-  wire is_l1_ready;
-  wire should_write;
+  parameter ROM_SIZE = 2;
+  parameter RAM_SIZE = 2;
 
-  assign should_stall = ~is_l1_ready;
-  assign should_write = mem_type != `MEM_ROM && mem_write;
+  assign stall_l1d = 0;
+  assign stall_l1i = (l1d_mem_read || l1d_mem_write) && l1i_mem_read;
 
-  l1 #(4, 32) l1(
-    .address(address),
-    .input_data(input_data),
-    .should_write(should_write),
+  wire [31:0] ram_output;
+  wire [31:0] rom_output;
+  assign output_data = l1d_mem_read || l1d_mem_write ? ram_output : rom_output;
+
+  rom #(ROM_SIZE) rom(
+    .address(l1i_address),
     .clock(clock),
-    .reset(reset),
-    .output_data(main_memory_output),
-    .ready(is_l1_ready)
+    .output_data(rom_output)
+  );
+
+  ram #(RAM_SIZE) ram(
+    .address(l1d_address - ROM_SIZE << 2),
+    .input_data(l1d_input_data),
+    .should_write(l1d_mem_write),
+    .clock(clock),
+    .output_data(ram_output)
   );
 endmodule

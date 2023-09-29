@@ -34,9 +34,6 @@
 
 `define INSTRUCTION_MEMORY_SIZE 4'd8
 
-`define MEM_ROM 1'b0
-`define MEM_RAM 1'b1
-
 `define BRANCH_EQ 4'b0000
 `define BRANCH_NE 4'b0001
 `define BRANCH_NONE 4'b0010

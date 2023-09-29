@@ -1,7 +1,7 @@
 module cpu (
-    input wire clock,
-    input wire [1:0] photores,
-    output wire [5:0] led
+  input wire clock,
+  input wire [1:0] photores,
+  output wire [5:0] led
 );
   wire [31:0] if_pc;
   wire [31:0] if_instruction;
@@ -68,11 +68,19 @@ module cpu (
   wire [4:0] wb_rd;
   wire wb_reg_write;
   wire [31:0] wb_mem_data;
+  wire wb_mem_read;
 
   wire [31:0] r1;
 
+  wire [31:0] l1i_address;
+  wire l1i_hit, l1d_hit;
+  wire l1i_ready, l1d_ready;
+  wire [31:0] memory_controller_output_data;
+  wire stall_l1i, stall_l1d;
+  assign l1i_address = if_pc >> 2;
+
   assign led[5] = ~if_pc[2];
-  // assign led[0] = ~r1[0];
+  assign led[4:0] = ~r1[4:0];
   // assign led[4:0] = ~wb_result[4:0];
 
   wire cpu_clock;
@@ -83,7 +91,6 @@ module cpu (
   // Uncomment for controlled clock  
   // localparam WAIT_TIME = 54000000;
   // reg [25:0] clock_counter = 0;
-  // reg [4:0] clock_counter = 0;
   // always @(posedge clock) begin
   //   clock_counter <= clock_counter + 1;
   //   
@@ -97,6 +104,19 @@ module cpu (
   //   end
   // end
 
+  memory_controller memory_controller (
+    .l1i_address(l1i_address),
+    .l1d_address(mem_result),
+    .l1d_input_data(mem_input_data),
+    .l1i_mem_read(~l1i_hit),
+    .l1d_mem_write(mem_mem_write),
+    .l1d_mem_read(~l1d_hit && mem_mem_read),
+    .clock(cpu_clock),
+    .output_data(memory_controller_output_data),
+    .stall_l1i(stall_l1i),
+    .stall_l1d(stall_l1d)
+  );
+
   branch branch (
     .id_pc(id_pc),
     .clock(cpu_clock),
@@ -108,15 +128,27 @@ module cpu (
     .should_branch(ex_should_branch)
   );
 
-  memory instruction_memory (
-      .address(if_pc >> 2),
-      .input_data(0),
-      .mem_read(1'b1),
-      .mem_write(1'b0),
-      .mem_type(`MEM_ROM),
-      .clock(cpu_clock),
-      .output_data(if_instruction)
+  l1 l1i (
+    .address(l1i_address),
+    .input_data(0),
+    .should_write(0),
+    .memory_controller_output_data(memory_controller_output_data),
+    .memory_controller_ready(~stall_l1i),
+    .clock(cpu_clock),
+    .output_data(if_instruction),
+    .hit(l1i_hit),
+    .ready(l1i_ready)
   );
+
+  // memory instruction_memory (
+  //     .address(if_pc >> 2),
+  //     .input_data(0),
+  //     .mem_read(1'b1),
+  //     .mem_write(1'b0),
+  //     .mem_type(`MEM_ROM),
+  //     .clock(cpu_clock),
+  //     .output_data(if_instruction)
+  // );
 
   if_id_pipeline_registers if_id_pipeline_registers (
     .clock(cpu_clock),
@@ -124,7 +156,7 @@ module cpu (
     .if_pc(if_pc),
     .id_instruction(id_instruction),
     .id_pc(id_pc),
-    .stall(ex_should_branch)
+    .stall(ex_should_branch || ~l1i_ready)
   );
 
   decoder decoder (
@@ -250,18 +282,29 @@ module cpu (
   );
 
   assign mem_input_data = (mem_atomic_op == `ATOMIC_NO_OP) ? mem_rs2_data_forwarded : mem_atomic_result;
-
-  memory data_memory (
-      .address(mem_result),
-      .input_data(mem_input_data),
-      .mem_write(mem_mem_write),
-      .mem_read(mem_mem_read),
-      .mem_type(`MEM_RAM),
-      .clock(cpu_clock),
-      .output_data(mem_mem_data),
-      .wb_peripheral_bus(wb_peripheral_bus),
-      .peripheral_bus(peripheral_bus)
+  l1 l1d (
+    .address(mem_result),
+    .input_data(mem_input_data),
+    .should_write(mem_mem_write),
+    .memory_controller_output_data(memory_controller_output_data),
+    .memory_controller_ready(~stall_l1d),
+    .clock(cpu_clock),
+    .output_data(mem_mem_data),
+    .hit(l1d_hit),
+    .ready(l1d_ready)
   );
+
+  // memory data_memory (
+  //     .address(mem_result),
+  //     .input_data(mem_input_data),
+  //     .mem_write(mem_mem_write),
+  //     .mem_read(mem_mem_read),
+  //     .mem_type(`MEM_RAM),
+  //     .clock(cpu_clock),
+  //     .output_data(mem_mem_data),
+  //     .wb_peripheral_bus(wb_peripheral_bus),
+  //     .peripheral_bus(peripheral_bus)
+  // );
 
   atomic atomic(
     .a(mem_mem_data),
@@ -285,5 +328,4 @@ module cpu (
   );
 
   assign wb_rd_data = wb_mem_read == 0 ? wb_result : wb_mem_data;
-
 endmodule

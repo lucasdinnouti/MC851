@@ -2,19 +2,23 @@
     "name": "cpu",
     "includedFiles": [
         "constants.v",
+        "branch.v",
         "alu.v",
         "decoder.v",
         "peripherals.v",
         "registers.v",
         "memory/flash_memory.v",
-        "memory/memory.v",
         "memory/l1.v",
+        "memory/ram.v",
+        "memory/rom.v",
         "memory/memory_controller.v",
         "memory/memory_test.v",
-        "memory/mock_memory.v",
-        "post_ex_pipeline_registers.v",
+        "atomic.v",
+        "forwarding.v",
         "if_id_pipeline_registers.v",
         "id_ex_pipeline_registers.v",
+        "ex_mem_pipeline_registers.v",
+        "mem_wb_pipeline_registers.v",
         "cpu.v"
     ],
     "top": "cpu",
@@ -23,5 +27,5 @@
         "resources/test2.riscv"
     ],
     "synthGowinOptions": ["-nowidelut", "-nolutram", "-nodffe"],
-    "nextPnrGowinOptions": ["--enable-globals", "--enable-auto-longwires"]
+    "nextPnrGowinOptions": ["--enable-globals", "--enable-auto-longwires", "--timing-allow-fail"]
 }
