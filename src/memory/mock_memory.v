@@ -1,13 +1,13 @@
 module memory (
     input wire [31:0] address,
     input wire [31:0] input_data,
-    //input wire [31:0] wb_peripheral_bus,
+    input wire [31:0] wb_peripheral_bus,
     input wire mem_write,
     input wire mem_read,
     input wire mem_type,
     input wire clock,
-    output reg [31:0] output_data = 0
-    //output wire [31:0] peripheral_bus
+    output reg [31:0] output_data = 0,
+    output wire [31:0] peripheral_bus
 );
 
   reg [31:0] ram[63:0];
@@ -90,9 +90,9 @@ module memory (
         `MEM_RAM: ram[address] = input_data;
       endcase
     end
-   // ram[63] = wb_peripheral_bus;
-
+    ram[63] = wb_peripheral_bus;
   end
+
   always @(negedge clock) begin
     if (mem_read) begin
       case (mem_type)
@@ -100,6 +100,6 @@ module memory (
         `MEM_RAM: output_data = ram[address];
       endcase
     end
-    //peripheral_bus[31:0] = ram[63];
+    peripheral_bus[31:0] = ram[63];
   end
 endmodule
