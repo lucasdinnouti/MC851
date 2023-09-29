@@ -105,7 +105,7 @@ module cpu (
     .l1d_input_data(mem_rs2_data_forwarded),
     .l1i_mem_read(~l1i_hit),
     .l1d_mem_write(mem_mem_write),
-    .l1d_mem_read(~l1d_hit && ~mem_mem_write),
+    .l1d_mem_read(~l1d_hit && mem_mem_read),
     .clock(cpu_clock),
     .output_data(memory_controller_output_data),
     .stall_l1i(stall_l1i),
@@ -261,7 +261,6 @@ module cpu (
     .mem_mem_op_length(mem_mem_op_length)
   );
 
-  // mem_mem_read
   l1 l1d (
     .address(mem_result),
     .input_data(mem_rs2_data_forwarded),

@@ -13,13 +13,14 @@
         "memory/rom.v",
         "memory/memory_controller.v",
         "memory/memory_test.v",
+        "forwarding.v",
         "if_id_pipeline_registers.v",
         "id_ex_pipeline_registers.v",
         "ex_mem_pipeline_registers.v",
         "mem_wb_pipeline_registers.v",
         "cpu.v"
     ],
-    "top": "memory_test",
+    "top": "cpu",
     "constraintsFile": "cpu.cst",
     "externalFlashFiles": [
         "resources/test2.riscv"

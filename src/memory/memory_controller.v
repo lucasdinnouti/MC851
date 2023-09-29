@@ -16,8 +16,6 @@ module memory_controller (
 
   wire [31:0] ram_output;
   wire [31:0] rom_output;
-
-  // If we are writing, can we read?
   assign output_data = l1d_mem_read || l1d_mem_write ? ram_output : rom_output;
 
   rom #(ROM_SIZE) rom(
@@ -27,7 +25,7 @@ module memory_controller (
   );
 
   ram ram(
-    .address(l1d_address - ROM_SIZE),
+    .address(l1d_address - ROM_SIZE << 2),
     .input_data(l1d_input_data),
     .should_write(l1d_mem_write),
     .clock(clock),
