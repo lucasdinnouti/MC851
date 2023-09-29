@@ -8,9 +8,11 @@ module rom (
 
   integer i = 0;
   initial begin
-    for (i = 0; i < SIZE_WORDS; i++) begin
-      data[i] = i;
-    end
+    // for (i = 0; i < SIZE_WORDS; i++) begin
+    //   data[i] = 0;
+    // end
+
+    data[0] = 32'h00b00093;
   end
 
   assign output_data = data[address >> 2];

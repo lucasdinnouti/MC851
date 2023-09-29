@@ -68,6 +68,7 @@ module cpu (
   wire [4:0] wb_rd;
   wire wb_reg_write;
   wire [31:0] wb_mem_data;
+  wire wb_mem_read;
 
   wire [31:0] r1;
 
@@ -79,7 +80,7 @@ module cpu (
   assign l1i_address = if_pc >> 2;
 
   assign led[5] = ~if_pc[2];
-  // assign led[0] = ~r1[0];
+  assign led[4:0] = ~r1[4:0];
   // assign led[4:0] = ~wb_result[4:0];
 
   wire cpu_clock;
@@ -90,7 +91,6 @@ module cpu (
   // Uncomment for controlled clock  
   // localparam WAIT_TIME = 54000000;
   // reg [25:0] clock_counter = 0;
-  // reg [4:0] clock_counter = 0;
   // always @(posedge clock) begin
   //   clock_counter <= clock_counter + 1;
   //   

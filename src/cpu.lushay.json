@@ -13,6 +13,7 @@
         "memory/rom.v",
         "memory/memory_controller.v",
         "memory/memory_test.v",
+        "atomic.v",
         "forwarding.v",
         "if_id_pipeline_registers.v",
         "id_ex_pipeline_registers.v",
@@ -26,5 +27,5 @@
         "resources/test2.riscv"
     ],
     "synthGowinOptions": ["-nowidelut", "-nolutram", "-nodffe"],
-    "nextPnrGowinOptions": ["--enable-globals", "--enable-auto-longwires"]
+    "nextPnrGowinOptions": ["--enable-globals", "--enable-auto-longwires", "--timing-allow-fail"]
 }

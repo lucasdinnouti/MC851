@@ -10,7 +10,9 @@ module memory_controller (
   output wire stall_l1i,
   output wire stall_l1d
 );
-  parameter ROM_SIZE = 32;
+  parameter ROM_SIZE = 2;
+  parameter RAM_SIZE = 2;
+
   assign stall_l1d = 0;
   assign stall_l1i = (l1d_mem_read || l1d_mem_write) && l1i_mem_read;
 
@@ -24,7 +26,7 @@ module memory_controller (
     .output_data(rom_output)
   );
 
-  ram ram(
+  ram #(RAM_SIZE) ram(
     .address(l1d_address - ROM_SIZE << 2),
     .input_data(l1d_input_data),
     .should_write(l1d_mem_write),
