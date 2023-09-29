@@ -66,6 +66,13 @@ module cpu (
 
   wire [31:0] r1;
 
+  wire [31:0] l1i_address;
+  wire l1i_hit, l1d_hit;
+  wire l1i_ready, l1d_ready;
+  wire [31:0] memory_controller_output_data;
+  wire stall_l1i, stall_l1d;
+  assign l1i_address = if_pc >> 2;
+
   assign led[5] = ~if_pc[2];
   // assign led[0] = ~r1[0];
   // assign led[4:0] = ~wb_result[4:0];
@@ -93,16 +100,16 @@ module cpu (
   // end
 
   memory_controller memory_controller (
-    .l1i_address(),
-    .l1d_address(),
-    .l1d_input_data(),
-    .l1d_mem_write(),
-    .l1d_mem_read(),
+    .l1i_address(l1i_address),
+    .l1d_address(mem_result),
+    .l1d_input_data(mem_rs2_data_forwarded),
+    .l1i_mem_read(~l1i_hit),
+    .l1d_mem_write(mem_mem_write),
+    .l1d_mem_read(~l1d_hit && ~mem_mem_write),
     .clock(cpu_clock),
-    .l1i_output_data(),
-    .l1d_output_data(),
-    .stall_l1i(),
-    .stall_l1d()
+    .output_data(memory_controller_output_data),
+    .stall_l1i(stall_l1i),
+    .stall_l1d(stall_l1d)
   );
 
   branch branch (
@@ -116,15 +123,16 @@ module cpu (
     .should_branch(ex_should_branch)
   );
 
-  l1i l1 (
-    .address(if_pc >> 2),
+  l1 l1i (
+    .address(l1i_address),
     .input_data(0),
     .should_write(0),
-    .memory_controller_output_data(),
-    .memory_controller_ready(),
+    .memory_controller_output_data(memory_controller_output_data),
+    .memory_controller_ready(~stall_l1i),
     .clock(cpu_clock),
     .output_data(if_instruction),
-    .ready()
+    .hit(l1i_hit),
+    .ready(l1i_ready)
   );
 
   if_id_pipeline_registers if_id_pipeline_registers (
@@ -133,7 +141,7 @@ module cpu (
     .if_pc(if_pc),
     .id_instruction(id_instruction),
     .id_pc(id_pc),
-    .stall(ex_should_branch)
+    .stall(ex_should_branch || ~l1i_ready)
   );
 
   decoder decoder (
@@ -254,15 +262,16 @@ module cpu (
   );
 
   // mem_mem_read
-  l1d l1 (
+  l1 l1d (
     .address(mem_result),
     .input_data(mem_rs2_data_forwarded),
     .should_write(mem_mem_write),
-    .memory_controller_output_data(),
-    .memory_controller_ready(),
+    .memory_controller_output_data(memory_controller_output_data),
+    .memory_controller_ready(~stall_l1d),
     .clock(cpu_clock),
     .output_data(mem_mem_data),
-    .ready()
+    .hit(l1d_hit),
+    .ready(l1d_ready)
   );
 
   mem_wb_pipeline_registers mem_wb_pipeline_registers (
