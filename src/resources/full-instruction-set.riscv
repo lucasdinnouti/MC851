@@ -1,0 +1,57 @@
+// main:
+//   addi x5, zero, 3
+//   sw x5, 0(zero)
+//   jal x1, function
+//   addi x5, zero, 10
+//   mul x10, x10, x5
+//   addi x5, zero, 100
+//   beq x10, x5, success
+//   j fail
+// function:
+//   lw x5, 0(zero)
+//   addi x10, zero, 0
+//   loop:
+//     add x10, x10, x5
+//     addi x5, x5, -1
+//     bne x5, zero, loop
+//   addi x10, x10, 4
+//   jalr zero, x1, 0
+//   j fail
+// success:
+//   addi x1, zero, 15
+//   j end
+// fail:
+//   addi x1, zero, 8
+// end:
+00300293
+00502023
+018000ef
+00a00293
+02550533
+06400293
+02550463
+02c0006f
+00002283
+00000513
+00550533
+fff28293
+fe029ce3
+00450513
+00008067
+00c0006f
+00f00093
+0080006f
+00800093
+00000000
+00000000
+00000000
+00000000
+00000000
+00000000
+00000000
+00000000
+00000000
+00000000
+00000000
+00000000
+00000000

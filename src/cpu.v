@@ -140,6 +140,16 @@ module cpu (
     .ready(l1i_ready)
   );
 
+  // memory instruction_memory (
+  //     .address(if_pc >> 2),
+  //     .input_data(0),
+  //     .mem_read(1'b1),
+  //     .mem_write(1'b0),
+  //     .mem_type(`MEM_ROM),
+  //     .clock(cpu_clock),
+  //     .output_data(if_instruction)
+  // );
+
   if_id_pipeline_registers if_id_pipeline_registers (
     .clock(cpu_clock),
     .if_instruction(if_instruction),
@@ -177,13 +187,13 @@ module cpu (
     .r1(r1)
   );
 
-  //peripherals peripherals(
-  //  .peripheral_bus(peripheral_bus),
-  //  .btn(btn),
-  //  .photores(photores),
-  //  .led(led[4:0]),
-  //  .wb_peripheral_bus(wb_peripheral_bus)
-  //);
+  peripherals peripherals(
+    .peripheral_bus(peripheral_bus),
+    .btn(btn),
+    .photores(photores),
+    .led(led[4:0]),
+    .wb_peripheral_bus(wb_peripheral_bus)
+  );
 
   id_ex_pipeline_registers id_ex_pipeline_registers (
     .clock(cpu_clock),
@@ -283,6 +293,18 @@ module cpu (
     .hit(l1d_hit),
     .ready(l1d_ready)
   );
+
+  // memory data_memory (
+  //     .address(mem_result),
+  //     .input_data(mem_input_data),
+  //     .mem_write(mem_mem_write),
+  //     .mem_read(mem_mem_read),
+  //     .mem_type(`MEM_RAM),
+  //     .clock(cpu_clock),
+  //     .output_data(mem_mem_data),
+  //     .wb_peripheral_bus(wb_peripheral_bus),
+  //     .peripheral_bus(peripheral_bus)
+  // );
 
   atomic atomic(
     .a(mem_mem_data),
