@@ -10,7 +10,8 @@ module decoder (
     output wire mem_write,
     output wire mem_read,
     output wire [2:0] mem_op_length,
-    output reg [3:0] branch_type
+    output reg [3:0] branch_type,
+    output reg [4:0] atomic_op
 );
 
   wire [2:0] funct3;
@@ -65,6 +66,12 @@ module decoder (
       branch_type = `BRANCH_JALR;
     end else begin
       branch_type = `BRANCH_NONE;
+    end
+
+    if (opcode == `ATOMIC_OP) begin
+      atomic_op = instruction[31:27];
+    end else begin
+      atomic_op = `ATOMIC_NO_OP;
     end
   end
 endmodule

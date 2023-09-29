@@ -25,6 +25,7 @@ module cpu (
   wire [31:0] id_rs2_data;
   wire ex_should_branch;
   wire [31:0] id_pc;
+  wire [4:0] id_atomic_op;
 
   wire alu_should_bypass_a, alu_should_bypass_b;
 
@@ -48,6 +49,7 @@ module cpu (
   wire [3:0] ex_branch_type;
   wire [31:0] ex_next_instruction_address;
   wire [31:0] ex_result;
+  wire [4:0] ex_atomic_op;
 
   wire [31:0] mem_result;
   wire [31:0] mem_rs2_data_forwarded;
@@ -57,6 +59,9 @@ module cpu (
   wire mem_mem_read;
   wire [2:0] mem_mem_op_length;
   wire [31:0] mem_mem_data;
+  wire [4:0] mem_atomic_op;
+  wire [31:0] mem_atomic_result;
+  wire [31:0] mem_input_data;
 
   wire [31:0] wb_result;
   wire [31:0] wb_rd_data;
@@ -102,7 +107,7 @@ module cpu (
   memory_controller memory_controller (
     .l1i_address(l1i_address),
     .l1d_address(mem_result),
-    .l1d_input_data(mem_rs2_data_forwarded),
+    .l1d_input_data(mem_input_data),
     .l1i_mem_read(~l1i_hit),
     .l1d_mem_write(mem_mem_write),
     .l1d_mem_read(~l1d_hit && mem_mem_read),
@@ -156,7 +161,8 @@ module cpu (
     .mem_write(id_mem_write),
     .mem_read(id_mem_read),
     .mem_op_length(id_mem_op_length),
-    .branch_type(id_branch_type)
+    .branch_type(id_branch_type),
+    .atomic_op(id_atomic_op)
   );
 
   registers registers (
@@ -195,6 +201,7 @@ module cpu (
     .id_mem_op_length(id_mem_op_length),
     .id_pc(id_pc),
     .id_branch_type(id_branch_type),
+    .id_atomic_op(id_atomic_op),
     .ex_rs1_data(ex_rs1_data),
     .ex_rs2_data(ex_rs2_data),
     .ex_alu_op(ex_alu_op),
@@ -209,6 +216,7 @@ module cpu (
     .ex_mem_op_length(ex_mem_op_length),
     .ex_pc(ex_pc),
     .ex_branch_type(ex_branch_type),
+    .ex_atomic_op(ex_atomic_op),
     .stall(ex_should_branch)
   );
 
@@ -252,18 +260,21 @@ module cpu (
     .ex_mem_write(ex_mem_write),
     .ex_mem_read(ex_mem_read),
     .ex_mem_op_length(ex_mem_op_length),
+    .ex_atomic_op(ex_atomic_op),
     .mem_result(mem_result),
     .mem_rs2_data_forwarded(mem_rs2_data_forwarded),
     .mem_rd(mem_rd),
     .mem_reg_write(mem_reg_write),
     .mem_mem_write(mem_mem_write),
     .mem_mem_read(mem_mem_read),
-    .mem_mem_op_length(mem_mem_op_length)
+    .mem_mem_op_length(mem_mem_op_length),
+    .mem_atomic_op(mem_atomic_op)
   );
 
+  assign mem_input_data = (mem_atomic_op == `ATOMIC_NO_OP) ? mem_rs2_data_forwarded : mem_atomic_result;
   l1 l1d (
     .address(mem_result),
-    .input_data(mem_rs2_data_forwarded),
+    .input_data(mem_input_data),
     .should_write(mem_mem_write),
     .memory_controller_output_data(memory_controller_output_data),
     .memory_controller_ready(~stall_l1d),
@@ -271,6 +282,13 @@ module cpu (
     .output_data(mem_mem_data),
     .hit(l1d_hit),
     .ready(l1d_ready)
+  );
+
+  atomic atomic(
+    .a(mem_mem_data),
+    .b(mem_rs2_data_forwarded),
+    .op(mem_atomic_op),
+    .result(mem_atomic_result)
   );
 
   mem_wb_pipeline_registers mem_wb_pipeline_registers (
@@ -288,5 +306,4 @@ module cpu (
   );
 
   assign wb_rd_data = wb_mem_read == 0 ? wb_result : wb_mem_data;
-
 endmodule

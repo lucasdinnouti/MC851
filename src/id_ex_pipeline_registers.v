@@ -14,6 +14,7 @@ module id_ex_pipeline_registers(
   input wire [2:0] id_mem_op_length,
   input wire [31:0] id_pc,
   input wire [3:0] id_branch_type,
+  input wire [4:0] id_atomic_op,
   input wire stall,
   output wire [31:0] ex_rs1_data,
   output wire [31:0] ex_rs2_data,
@@ -28,7 +29,8 @@ module id_ex_pipeline_registers(
   output wire ex_mem_read,
   output wire [2:0] ex_mem_op_length,
   output wire [31:0] ex_pc,
-  output wire [3:0] ex_branch_type
+  output wire [3:0] ex_branch_type,
+  output wire [4:0] ex_atomic_op
 );
   reg [31:0] rs1_data = 0;
   reg [31:0] rs2_data = 0;
@@ -44,6 +46,7 @@ module id_ex_pipeline_registers(
   reg [2:0] mem_op_length = 0;
   reg [31:0] pc = 0;
   reg [3:0] branch_type = `BRANCH_NONE;
+  reg [4:0] atomic_op = `ATOMIC_NO_OP;
 
   assign ex_rs1_data = rs1_data;
   assign ex_rs2_data = rs2_data;
@@ -59,6 +62,7 @@ module id_ex_pipeline_registers(
   assign ex_mem_op_length = mem_op_length;
   assign ex_pc = pc;
   assign ex_branch_type = branch_type;
+  assign ex_atomic_op = atomic_op;
 
   always @(posedge clock) begin
     if (stall) begin
@@ -76,6 +80,7 @@ module id_ex_pipeline_registers(
       mem_op_length <= 0;
       pc <= 0;
       branch_type <= `BRANCH_NONE;
+      atomic_op <= `ATOMIC_NO_OP;
     end else begin 
       rs1_data <= id_rs1_data;
       rs2_data <= id_rs2_data;
@@ -91,6 +96,7 @@ module id_ex_pipeline_registers(
       mem_op_length <= id_mem_op_length;
       pc <= id_pc;
       branch_type <= id_branch_type;
+      atomic_op <= id_atomic_op;
     end
   end
 endmodule
