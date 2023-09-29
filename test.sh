@@ -10,4 +10,4 @@ echo "Running decoder tests"
 iverilog src/constants.v test/assert.v src/decoder.v test/decoder_tb.v && ./a.out
 
 echo "Running CPU mock tests"
-iverilog src/constants.v src/alu.v src/branch.v src/decoder.v src/memory/mock_memory.v src/registers.v src/ex_mem_pipeline_registers.v src/id_ex_pipeline_registers.v src/if_id_pipeline_registers.v src/mem_wb_pipeline_registers.v src/forwarding.v src/cpu.v test/cpu_tb.v && ./a.out
+iverilog src/constants.v src/alu.v src/branch.v src/decoder.v src/memory/mock_memory.v src/registers.v src/ex_mem_pipeline_registers.v src/id_ex_pipeline_registers.v src/if_id_pipeline_registers.v src/mem_wb_pipeline_registers.v src/forwarding.v src/peripherals.v src/atomic.v src/cpu.v test/cpu_tb.v && ./a.out
