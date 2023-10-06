@@ -8,6 +8,7 @@ module if_id_pipeline_registers(
 );
   reg [31:0] instruction = 0;
   // TODO: check better way to do this
+  // To run on simulator change to -8
   reg [31:0] pc = -4;
 
   assign id_instruction = instruction;

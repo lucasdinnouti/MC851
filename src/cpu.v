@@ -131,7 +131,7 @@ module cpu (
   l1 l1i (
     .address(l1i_address),
     .input_data(0),
-    .should_write(0),
+    .should_write(1'b0),
     .memory_controller_output_data(memory_controller_output_data),
     .memory_controller_ready(~stall_l1i),
     .clock(cpu_clock),

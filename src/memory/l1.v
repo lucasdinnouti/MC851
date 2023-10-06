@@ -5,7 +5,7 @@ module l1 (
   input wire clock,
   input wire [31:0] memory_controller_output_data,
   input wire memory_controller_ready,
-  output reg [31:0] output_data,
+  output wire [31:0] output_data,
   output wire hit,
   output wire ready
 );
@@ -33,7 +33,10 @@ module l1 (
   initial begin
     for (i = 0; i < CACHE_LINES; i++) begin
       valid[i] <= 0;
+      tags[i] <= 0;
+      lines[i] <= 0;
     end
+    cache_hit <= 0;
   end
 
   always @(posedge clock) begin

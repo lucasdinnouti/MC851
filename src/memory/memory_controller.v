@@ -10,8 +10,8 @@ module memory_controller (
   output wire stall_l1i,
   output wire stall_l1d
 );
-  parameter ROM_SIZE = 2;
-  parameter RAM_SIZE = 2;
+  parameter ROM_SIZE = 32;
+  parameter RAM_SIZE = 32;
 
   assign stall_l1d = 0;
   assign stall_l1i = (l1d_mem_read || l1d_mem_write) && l1i_mem_read;
