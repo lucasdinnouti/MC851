@@ -77,32 +77,30 @@ module cpu (
   wire l1i_ready, l1d_ready;
   wire [31:0] memory_controller_output_data;
   wire stall_l1i, stall_l1d;
-  assign l1i_address = if_pc >> 2;
+  assign l1i_address = if_pc;
 
-  assign led[5] = ~if_pc[2];
+`ifdef SIMULATOR
+  // Uncontrolled clock
+  wire cpu_clock;
+  assign cpu_clock = clock;
+`else
+  // Controlled clock
+  reg cpu_clock = 0;
+  localparam WAIT_TIME = 13500000;
+  reg [23:0] clock_counter = 0;
+  always @(posedge clock) begin
+    if (clock_counter < WAIT_TIME) begin
+      clock_counter <= clock_counter + 1;
+    end else begin
+      clock_counter <= 0;
+      cpu_clock <= ~cpu_clock;
+    end
+  end
+`endif
+
+  assign led[5] = ~cpu_clock;
   assign led[4:0] = ~r1[4:0];
   // assign led[4:0] = ~wb_result[4:0];
-
-  wire cpu_clock;
-
-  // Uncomment for uncontrolled clock
-  assign cpu_clock = clock;
-  
-  // Uncomment for controlled clock  
-  // localparam WAIT_TIME = 54000000;
-  // reg [25:0] clock_counter = 0;
-  // always @(posedge clock) begin
-  //   clock_counter <= clock_counter + 1;
-  //   
-  //   if (clock_counter == WAIT_TIME / 2) begin
-  //     cpu_clock <= 0;
-  //   end
-  // 
-  //   if (clock_counter == WAIT_TIME) begin
-  //     clock_counter <= 0;
-  //     cpu_clock <= 1;
-  //   end
-  // end
 
   memory_controller memory_controller (
     .l1i_address(l1i_address),
@@ -187,13 +185,13 @@ module cpu (
     .r1(r1)
   );
 
-  peripherals peripherals(
-    .peripheral_bus(peripheral_bus),
-    .btn(btn),
-    .photores(photores),
-    .led(led[4:0]),
-    .wb_peripheral_bus(wb_peripheral_bus)
-  );
+  // peripherals peripherals(
+  //   .peripheral_bus(peripheral_bus),
+  //   .btn(btn),
+  //   .photores(photores),
+  //   .led(led[4:0]),
+  //   .wb_peripheral_bus(wb_peripheral_bus)
+  // );
 
   id_ex_pipeline_registers id_ex_pipeline_registers (
     .clock(cpu_clock),

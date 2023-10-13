@@ -2,7 +2,7 @@
 
 module cpu_tb;
   wire [5:0] led;
-  reg clock = 1;
+  reg clock = 0;
 
   localparam PERIOD = 10;
 
@@ -21,6 +21,6 @@ module cpu_tb;
       #PERIOD;
       clock = ~clock;
     end
-    //`assert(cpu.r1, 15, "cpu r1");
+    `assert(cpu.r1, 15, "cpu r1");
   end
 endmodule

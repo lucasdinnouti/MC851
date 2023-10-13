@@ -7,9 +7,7 @@ module if_id_pipeline_registers(
   output wire [31:0] id_pc
 );
   reg [31:0] instruction = 0;
-  // TODO: check better way to do this
-  // To run on simulator change to -8
-  reg [31:0] pc = -4;
+  reg [31:0] pc = 0;
 
   assign id_instruction = instruction;
   assign id_pc = pc;

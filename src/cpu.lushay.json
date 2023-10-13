@@ -1,6 +1,7 @@
 {
     "name": "cpu",
     "includedFiles": [
+        "fpga.v",
         "constants.v",
         "branch.v",
         "alu.v",
@@ -26,6 +27,6 @@
     "externalFlashFiles": [
         "resources/test2.riscv"
     ],
-    "synthGowinOptions": ["-nowidelut", "-nolutram", "-nodffe"],
-    "nextPnrGowinOptions": ["--enable-globals", "--enable-auto-longwires", "--timing-allow-fail"]
+    "synthGowinOptions": ["-nowidelut", "-nodffe"],
+    "nextPnrGowinOptions": ["--enable-globals", "--enable-auto-longwires", "--timing-allow-fail", "--ignore-loops"]
 }

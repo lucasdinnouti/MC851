@@ -17,13 +17,13 @@ module l1 (
   reg [29 - INDEX_BITS:0] tags[CACHE_LINES - 1:0];
   reg [(CACHE_BLOCK_SIZE_BYTES << 3) - 1:0] lines[CACHE_LINES - 1:0];
 
-  reg [INDEX_BITS - 1:0] current_index;
+  reg [INDEX_BITS - 1:0] current_index = 0;
   // assign current_index = address[INDEX_BITS + 1:2];
 
-  reg [29 - INDEX_BITS:0] current_tag;
+  reg [29 - INDEX_BITS:0] current_tag = 0;
   // assign current_tag = address[31:INDEX_BITS + 2];
 
-  reg cache_hit;
+  reg cache_hit = 0;
   // assign cache_hit = current_tag == tags[current_index] && valid[current_index];
   assign output_data = cache_hit ? lines[current_index] : memory_controller_output_data;
   assign ready = cache_hit && ~should_write ? 1 : memory_controller_ready;
@@ -36,7 +36,6 @@ module l1 (
       tags[i] <= 0;
       lines[i] <= 0;
     end
-    cache_hit <= 0;
   end
 
   always @(posedge clock) begin

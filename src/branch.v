@@ -5,7 +5,7 @@ module branch (
     input wire [31:0] rs2_data,
     input wire [31:0] immediate,
     input wire [3:0] branch_type,
-    output reg [31:0] if_pc,
+    output reg [31:0] if_pc = 0,
     output wire should_branch
 );
   reg should_branch_reg = 0;
@@ -25,7 +25,9 @@ module branch (
       `BRANCH_JALR: should_branch_reg = 1;
       default: should_branch_reg = 0;
     endcase
+  end
 
+  always @* begin
     if (should_branch_reg) begin
       if (branch_type == `BRANCH_JALR) begin
         if_pc = rs1_data + immediate;
