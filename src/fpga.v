@@ -1,0 +1,1 @@
+`define PROGRAM `"full-instruction-set.riscv`"
