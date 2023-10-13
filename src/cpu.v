@@ -1,7 +1,8 @@
 module cpu (
   input wire clock,
-  input wire [1:0] photores,
-  output wire [5:0] led
+  input wire [3:0] input_peripherals,
+  output wire [3:0] output_peripherals,
+  output wire [3:0] led
 );
   wire [31:0] if_pc;
   wire [31:0] if_instruction;
@@ -98,9 +99,9 @@ module cpu (
   end
 `endif
 
-  assign led[5] = ~cpu_clock;
-  assign led[4:0] = ~r1[4:0];
-  // assign led[4:0] = ~wb_result[4:0];
+  assign led[3] = ~cpu_clock;
+  assign led[2:0] = ~r1[2:0];
+  // assign led[3:0] = ~wb_result[3:0];
 
   memory_controller memory_controller (
     .l1i_address(l1i_address),
@@ -110,6 +111,8 @@ module cpu (
     .l1d_mem_write(mem_mem_write),
     .l1d_mem_read(~l1d_hit && mem_mem_read),
     .clock(cpu_clock),
+    .input_peripherals(input_peripherals),
+    .output_peripherals(output_peripherals),
     .output_data(memory_controller_output_data),
     .stall_l1i(stall_l1i),
     .stall_l1d(stall_l1d)
@@ -184,14 +187,6 @@ module cpu (
     .rs2_data(id_rs2_data),
     .r1(r1)
   );
-
-  // peripherals peripherals(
-  //   .peripheral_bus(peripheral_bus),
-  //   .btn(btn),
-  //   .photores(photores),
-  //   .led(led[4:0]),
-  //   .wb_peripheral_bus(wb_peripheral_bus)
-  // );
 
   id_ex_pipeline_registers id_ex_pipeline_registers (
     .clock(cpu_clock),
