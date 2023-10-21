@@ -25,7 +25,11 @@ module l1 (
 
   reg cache_hit = 0;
   // assign cache_hit = current_tag == tags[current_index] && valid[current_index];
-  assign output_data = cache_hit ? lines[current_index] : memory_controller_output_data;
+
+  // TODO: fix cache issues
+  //assign output_data = cache_hit ? lines[current_index] : memory_controller_output_data;
+  assign output_data = memory_controller_output_data;
+
   assign ready = cache_hit && ~should_write ? 1 : memory_controller_ready;
   assign hit = cache_hit;
 

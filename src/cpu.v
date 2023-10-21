@@ -35,6 +35,7 @@ module cpu (
   wire [31:0] ex_rs2_data_forwarded;
   wire [31:0] ex_alu_b;
   wire [4:0] ex_alu_op;
+  wire ex_alu_busy;
   wire [4:0] ex_rd;
   wire [4:0] ex_rs1;
   wire [4:0] ex_rs2;
@@ -108,7 +109,9 @@ module cpu (
     .l1d_input_data(mem_input_data),
     .l1i_mem_read(~l1i_hit),
     .l1d_mem_write(mem_mem_write),
-    .l1d_mem_read(~l1d_hit && mem_mem_read),
+    // TODO: fix cache issues
+    //.l1d_mem_read(~l1d_hit && mem_mem_read),
+    .l1d_mem_read(mem_mem_read),
     .clock(cpu_clock),
     .output_data(memory_controller_output_data),
     .stall_l1i(stall_l1i),
@@ -117,6 +120,7 @@ module cpu (
 
   branch branch (
     .id_pc(id_pc),
+    .ex_pc(ex_pc),
     .clock(cpu_clock),
     .rs1_data(ex_rs1_data_forwarded),
     .rs2_data(ex_rs2_data_forwarded),
@@ -154,7 +158,9 @@ module cpu (
     .if_pc(if_pc),
     .id_instruction(id_instruction),
     .id_pc(id_pc),
-    .stall(ex_should_branch || ~l1i_ready)
+    .reset(ex_should_branch || ~l1i_ready),
+    .stall(ex_alu_busy),
+    .forward_pc(ex_should_branch || l1i_ready)
   );
 
   decoder decoder (
@@ -225,7 +231,8 @@ module cpu (
     .ex_pc(ex_pc),
     .ex_branch_type(ex_branch_type),
     .ex_atomic_op(ex_atomic_op),
-    .stall(ex_should_branch)
+    .reset(ex_should_branch),
+    .stall(ex_alu_busy)
   );
 
   forwarding forwarding(
@@ -250,10 +257,12 @@ module cpu (
   assign ex_alu_b = (ex_alu_use_rs2 == 0) ? ex_immediate : ex_rs2_data_forwarded;
 
   alu alu (
+    .clock(cpu_clock),
     .a(ex_rs1_data_forwarded),
     .b(ex_alu_b),
     .op(ex_alu_op),
-    .result(ex_alu_result)
+    .result(ex_alu_result),
+    .busy(ex_alu_busy)
   );
 
   assign ex_next_instruction_address = ex_pc + 4;

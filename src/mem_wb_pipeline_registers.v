@@ -11,11 +11,11 @@ module mem_wb_pipeline_registers(
   output wire wb_reg_write,
   output wire wb_mem_read
 );
-  reg [31:0] result;
-  reg [31:0] mem_data;
-  reg [4:0] rd;
-  reg reg_write;
-  reg mem_read;
+  reg [31:0] result = 0;
+  reg [31:0] mem_data = 0;
+  reg [4:0] rd = 0;
+  reg reg_write = 0;
+  reg mem_read = 0;
 
   assign wb_result = result;
   assign wb_mem_data = mem_data;

@@ -23,32 +23,32 @@ module forwarding (
   wire should_bypass_mem_read_a;
   wire should_bypass_mem_read_b;
 
-  assign should_bypass_wb_a = wb_reg_write && (wb_rd == ex_rs1);
-  assign should_bypass_wb_b = wb_reg_write && (wb_rd == ex_rs2);
-  assign should_bypass_mem_a = mem_reg_write && (mem_rd == ex_rs1) && !mem_mem_read;
-  assign should_bypass_mem_b = mem_reg_write && (mem_rd == ex_rs2) && !mem_mem_read;
-  assign should_bypass_mem_read_a = mem_reg_write && (mem_rd == ex_rs1) && mem_mem_read;
-  assign should_bypass_mem_read_b = mem_reg_write && (mem_rd == ex_rs2) && mem_mem_read;
+  assign should_bypass_wb_a = wb_reg_write && (wb_rd == ex_rs1) && ex_rs1 != 0;
+  assign should_bypass_wb_b = wb_reg_write && (wb_rd == ex_rs2) && ex_rs2 != 0;
+  assign should_bypass_mem_a = mem_reg_write && (mem_rd == ex_rs1) && !mem_mem_read && ex_rs1 != 0;
+  assign should_bypass_mem_b = mem_reg_write && (mem_rd == ex_rs2) && !mem_mem_read && ex_rs2 != 0;
+  assign should_bypass_mem_read_a = mem_reg_write && (mem_rd == ex_rs1) && mem_mem_read && ex_rs1 != 0;
+  assign should_bypass_mem_read_b = mem_reg_write && (mem_rd == ex_rs2) && mem_mem_read && ex_rs2 != 0;
 
   always @* begin
     if (should_bypass_mem_a) begin
-        rs1_data_forwarded = mem_result;
+        rs1_data_forwarded <= mem_result;
     end else if (should_bypass_mem_read_a) begin
-        rs1_data_forwarded = mem_mem_data;
+        rs1_data_forwarded <= mem_mem_data;
     end else if (should_bypass_wb_a) begin
-        rs1_data_forwarded = wb_rd_data;
+        rs1_data_forwarded <= wb_rd_data;
     end else begin
-        rs1_data_forwarded = ex_rs1_data;
+        rs1_data_forwarded <= ex_rs1_data;
     end
 
     if (should_bypass_mem_b) begin
-        rs2_data_forwarded = mem_result;
+        rs2_data_forwarded <= mem_result;
     end else if (should_bypass_mem_read_b) begin
-        rs2_data_forwarded = mem_mem_data;
+        rs2_data_forwarded <= mem_mem_data;
     end else if (should_bypass_wb_b) begin
-        rs2_data_forwarded = wb_rd_data;
+        rs2_data_forwarded <= wb_rd_data;
     end else begin
-        rs2_data_forwarded = ex_rs2_data;
+        rs2_data_forwarded <= ex_rs2_data;
     end
   end
 endmodule
