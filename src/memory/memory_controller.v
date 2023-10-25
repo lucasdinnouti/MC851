@@ -6,8 +6,8 @@ module memory_controller (
   input wire l1d_mem_write,
   input wire l1d_mem_read,
   input wire clock,
-  input wire input_peripherals,
-  output wire output_peripherals,
+  input wire [3:0] input_peripherals,
+  output wire [3:0] output_peripherals,
   output wire [31:0] output_data,
   output wire stall_l1i,
   output wire stall_l1d

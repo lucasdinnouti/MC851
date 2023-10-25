@@ -8,7 +8,7 @@ module peripherals (
   output wire [3:0] output_peripherals,
   output wire [31:0] output_data
 );
-  reg [7:0] data;
+  reg data[7:0];
   
   wire [2:0] index;
   assign index = address[2:0];
@@ -25,25 +25,28 @@ module peripherals (
   // input_peripherals[1] - analog port 26;
   // input_peripherals[2] - button 1;
   // input_peripherals[3] - button 2;
-  // output_peripherals[4] - analog port 27;
-  // output_peripherals[5] - analog port 28;
-  // output_peripherals[6] - led 1;
-  // output_peripherals[7] - led 2;
+  // output_peripherals[0] - analog port 27;
+  // output_peripherals[1] - analog port 28;
+  // output_peripherals[2] - led 1;
+  // output_peripherals[3] - led 2;
 
   always @(posedge clock) begin
     
-    output_peripherals[1:0] = data[1:0]; // protoboard leds
-    
-    // onboard leds
-    output_peripherals[3:2] = ~data[3:2];
+    output_peripherals[0] = data[0];
+    output_peripherals[1] = data[1];
+    // output_peripherals[2] = ~data[2];
+    // output_peripherals[3] = ~data[3];
+
+    // debug - hardwires leds to sensors
+    output_peripherals[2] = ~input_peripherals[0];
+    output_peripherals[3] = ~input_peripherals[1];
   end
 
   always @(negedge clock) begin
-    // photo resistor
-    data[5:4] = input_peripherals[1:0];
-
-    // onboard buttons
-    data[7:6] = input_peripherals[3:2];
+    data[4] = input_peripherals[0];
+    data[5] = input_peripherals[1];
+    data[6] = input_peripherals[2];
+    data[7] = input_peripherals[3];
   end
 
 endmodule
