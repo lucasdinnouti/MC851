@@ -6,7 +6,18 @@ module alu (
     output reg [31:0] result,
     output wire busy
 );
-  assign busy = 0;
+  wire [31:0] div_result;
+  wire [31:0] div_remainder;
+
+  divider divider(
+    .clock(clock), 
+    .start(op == `ALU_DIV_OP || op == `ALU_DIVU_OP || op == `ALU_REM_OP || op == `ALU_REMU_OP), 
+    .a(a), 
+    .b(b), 
+    .result(div_result), 
+    .remainder(div_remainder),
+    .busy(busy)
+  );
 
   always @* begin
     case (op)
@@ -25,10 +36,10 @@ module alu (
       //`ALU_MULH_OP: result <= (64'b1 * $signed(a) * $signed(b)) >> 32;
       //`ALU_MULHSU_OP: result <= (64'b1 * $signed(a) * b) >> 32;
       //`ALU_MULHU_OP: result <= (64'b1 * a * b) >> 32;
-      //`ALU_DIV_OP: result <= $signed(a) / $signed(b);
-      //`ALU_DIVU_OP: result <= a / b;
-      //`ALU_REM_OP: result <= $signed(a) % $signed(b);
-      //`ALU_REMU_OP: result <= a % b;
+      `ALU_DIV_OP: result <= div_result;
+      `ALU_DIVU_OP: result <= div_result;
+      `ALU_REM_OP: result <= div_remainder;
+      `ALU_REMU_OP: result <= div_remainder;
       default: result <= 0;
     endcase
   end
