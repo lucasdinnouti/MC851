@@ -18,7 +18,7 @@ module memory_controller (
 
   wire [31:0] ram_output;
   wire [31:0] rom_output;
-  assign output_data = l1d_mem_read || l1d_mem_write ? ram_output : rom_output;
+  assign output_data = l1d_mem_read ? ram_output : (l1d_mem_write ? 32'h0 : rom_output);
 
   rom #(ROM_SIZE) rom(
     .address(l1i_address),
@@ -26,8 +26,11 @@ module memory_controller (
     .output_data(rom_output)
   );
 
+  wire [31:0] ram_address;
+  assign ram_address = l1d_address - (ROM_SIZE << 2);
+
   ram #(RAM_SIZE) ram(
-    .address(l1d_address - ROM_SIZE << 2),
+    .address($signed(ram_address) < 0 ? 0 : ram_address),
     .input_data(l1d_input_data),
     .should_write(l1d_mem_write),
     .clock(clock),

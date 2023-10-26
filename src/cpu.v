@@ -107,7 +107,9 @@ module cpu (
     .l1i_address(l1i_address),
     .l1d_address(mem_result),
     .l1d_input_data(mem_input_data),
-    .l1i_mem_read(~l1i_hit),
+    .l1i_mem_read(1'b1),
+    // TODO: fix cache issues
+    //.l1i_mem_read(~l1i_hit),
     .l1d_mem_write(mem_mem_write),
     // TODO: fix cache issues
     //.l1d_mem_read(~l1d_hit && mem_mem_read),
@@ -160,7 +162,7 @@ module cpu (
     .id_pc(id_pc),
     .reset(ex_should_branch || ~l1i_ready),
     .stall(ex_alu_busy),
-    .forward_pc(ex_should_branch || l1i_ready)
+    .forward_pc(ex_should_branch || ~stall_l1i) // TODO: when cache is fixed, maybe switch to l1i_ready instead
   );
 
   decoder decoder (
