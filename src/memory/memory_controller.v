@@ -7,6 +7,7 @@ module memory_controller (
   input wire l1d_mem_read,
   input wire clock,
   output wire [31:0] output_data,
+  output wire [1:0] data_source,
   output wire stall_l1i,
   output wire stall_l1d
 );
@@ -19,6 +20,7 @@ module memory_controller (
   wire [31:0] ram_output;
   wire [31:0] rom_output;
   assign output_data = l1d_mem_read ? ram_output : (l1d_mem_write ? 32'h0 : rom_output);
+  assign data_source = l1d_mem_read ? `DATA_SOURCE_RAM : (l1d_mem_write ? `DATA_SOURCE_NONE : `DATA_SOURCE_ROM);
 
   rom #(ROM_SIZE) rom(
     .address(l1i_address),

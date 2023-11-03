@@ -77,6 +77,7 @@ module cpu (
   wire l1i_hit, l1d_hit;
   wire l1i_ready, l1d_ready;
   wire [31:0] memory_controller_output_data;
+  wire [1:0] memory_controller_data_source;
   wire stall_l1i, stall_l1d;
   assign l1i_address = if_pc;
 
@@ -107,15 +108,12 @@ module cpu (
     .l1i_address(l1i_address),
     .l1d_address(mem_result),
     .l1d_input_data(mem_input_data),
-    .l1i_mem_read(1'b1),
-    // TODO: fix cache issues
-    //.l1i_mem_read(~l1i_hit),
+    .l1i_mem_read(~l1i_hit),
     .l1d_mem_write(mem_mem_write),
-    // TODO: fix cache issues
-    //.l1d_mem_read(~l1d_hit && mem_mem_read),
-    .l1d_mem_read(mem_mem_read),
+    .l1d_mem_read(~l1d_hit && mem_mem_read),
     .clock(cpu_clock),
     .output_data(memory_controller_output_data),
+    .data_source(memory_controller_data_source),
     .stall_l1i(stall_l1i),
     .stall_l1d(stall_l1d)
   );
@@ -137,6 +135,7 @@ module cpu (
     .input_data(0),
     .should_write(1'b0),
     .memory_controller_output_data(memory_controller_output_data),
+    .should_cache(memory_controller_data_source == `DATA_SOURCE_ROM),
     .memory_controller_ready(~stall_l1i),
     .clock(cpu_clock),
     .output_data(if_instruction),
@@ -162,7 +161,7 @@ module cpu (
     .id_pc(id_pc),
     .reset(ex_should_branch || ~l1i_ready),
     .stall(ex_alu_busy),
-    .forward_pc(ex_should_branch || ~stall_l1i) // TODO: when cache is fixed, maybe switch to l1i_ready instead
+    .forward_pc(ex_should_branch || ~stall_l1i)
   );
 
   decoder decoder (
@@ -296,6 +295,7 @@ module cpu (
     .input_data(mem_input_data),
     .should_write(mem_mem_write),
     .memory_controller_output_data(memory_controller_output_data),
+    .should_cache(memory_controller_data_source == `DATA_SOURCE_RAM),
     .memory_controller_ready(~stall_l1d),
     .clock(cpu_clock),
     .output_data(mem_mem_data),
