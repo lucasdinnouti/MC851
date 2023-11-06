@@ -1,7 +1,7 @@
 #!/bin/sh
 
 echo "-> Running ALU tests"
-iverilog src/constants.v test/assert.v src/alu.v test/alu_tb.v && ./a.out
+iverilog src/constants.v test/assert.v src/divider.v src/alu.v test/alu_tb.v && ./a.out
 echo
 
 echo "-> Running registers tests"

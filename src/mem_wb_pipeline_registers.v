@@ -5,6 +5,7 @@ module mem_wb_pipeline_registers(
   input wire [4:0] mem_rd,
   input wire mem_reg_write,
   input wire mem_mem_read,
+  input wire reset,
   output wire [31:0] wb_result,
   output wire [31:0] wb_mem_data,
   output wire [4:0] wb_rd,
@@ -24,10 +25,18 @@ module mem_wb_pipeline_registers(
   assign wb_mem_read = mem_read;
 
   always @(posedge clock) begin
-    result <= mem_result;
-    mem_data <= mem_mem_data;
-    rd <= mem_rd;
-    reg_write <= mem_reg_write;
-    mem_read <= mem_mem_read;
+    if (reset) begin
+      result <= 0;
+      mem_data <= 0;
+      rd <= 0;
+      reg_write <= 0;
+      mem_read <= 0;
+    end else begin
+      result <= mem_result;
+      mem_data <= mem_mem_data;
+      rd <= mem_rd;
+      reg_write <= mem_reg_write;
+      mem_read <= mem_mem_read;
+    end
   end
 endmodule

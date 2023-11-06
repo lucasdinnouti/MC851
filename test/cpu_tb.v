@@ -15,7 +15,7 @@ module cpu_tb;
 
   integer i;
   initial begin
-    for (i = 0; i < 40; i = i + 1) begin
+    for (i = 0; i < 160; i = i + 1) begin
       #PERIOD;
       clock = ~clock;
       #PERIOD;
