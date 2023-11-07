@@ -100,8 +100,15 @@ module cpu (
   end
 `endif
 
-  assign led[5] = ~cpu_clock;
-  assign led[4:0] = ~r1[4:0];
+  assign led[5] = ~cpu_clock;     // alterna
+  assign led[4] = ~wb_rd_data[0];
+  assign led[3:2] = ~wb_rd[1:0];
+  assign led[1:0] = ~r1[1:0];
+  //assign led[4] = ~(~l1i_hit);  // 1
+  //assign led[3] = ~mem_mem_read;  // 0
+  //assign led[2] = ~mem_mem_write; // 0
+  //assign led[1:0] = ~wb_rd[1:0];  // 1 -> 2 -> 3 -> 3 -> 1
+  //                                
   // assign led[4:0] = ~wb_result[4:0];
 
   memory_controller memory_controller (
@@ -161,7 +168,7 @@ module cpu (
     .id_pc(id_pc),
     .reset(ex_should_branch || ~l1i_ready),
     .stall(ex_alu_busy),
-    .forward_pc(ex_should_branch || ~stall_l1i)
+    .forward_pc(~ex_alu_busy && (ex_should_branch || ~stall_l1i))
   );
 
   decoder decoder (
@@ -286,7 +293,8 @@ module cpu (
     .mem_mem_write(mem_mem_write),
     .mem_mem_read(mem_mem_read),
     .mem_mem_op_length(mem_mem_op_length),
-    .mem_atomic_op(mem_atomic_op)
+    .mem_atomic_op(mem_atomic_op),
+    .reset(ex_alu_busy)
   );
 
   assign mem_input_data = (mem_atomic_op == `ATOMIC_NO_OP) ? mem_rs2_data_forwarded : mem_atomic_result;
@@ -333,7 +341,8 @@ module cpu (
     .wb_mem_data(wb_mem_data),
     .wb_rd(wb_rd),
     .wb_reg_write(wb_reg_write),
-    .wb_mem_read(wb_mem_read)
+    .wb_mem_read(wb_mem_read),
+    .reset(1'b0)
   );
 
   assign wb_rd_data = wb_mem_read == 0 ? wb_result : wb_mem_data;

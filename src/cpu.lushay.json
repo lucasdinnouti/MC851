@@ -18,6 +18,7 @@
         "id_ex_pipeline_registers.v",
         "ex_mem_pipeline_registers.v",
         "mem_wb_pipeline_registers.v",
+        "divider.v",
         "cpu.v"
     ],
     "top": "cpu",
