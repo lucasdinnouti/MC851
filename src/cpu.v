@@ -4,7 +4,9 @@ module cpu (
   output wire [5:0] led
 );
   wire [31:0] if_pc;
+  wire [31:0] if_l1i_output_data;
   wire [31:0] if_instruction;
+  wire if_misaligned_instruction;
 
   wire [31:0] peripheral_bus;
   wire [31:0] wb_peripheral_bus;
@@ -26,6 +28,7 @@ module cpu (
   wire ex_should_branch;
   wire [31:0] id_pc;
   wire [4:0] id_atomic_op;
+  wire id_is_compact;
 
   wire alu_should_bypass_a, alu_should_bypass_b;
 
@@ -101,9 +104,9 @@ module cpu (
 `endif
 
   assign led[5] = ~cpu_clock;     // alterna
-  assign led[4] = ~wb_rd_data[0];
-  assign led[3:2] = ~wb_rd[1:0];
-  assign led[1:0] = ~r1[1:0];
+  //assign led[4] = ~wb_rd_data[0];
+  assign led[4:0] = ~wb_rd[4:0];
+  //assign led[1:0] = ~r1[1:0];
   //assign led[4] = ~(~l1i_hit);  // 1
   //assign led[3] = ~mem_mem_read;  // 0
   //assign led[2] = ~mem_mem_write; // 0
@@ -126,13 +129,14 @@ module cpu (
   );
 
   branch branch (
-    .id_pc(id_pc),
     .ex_pc(ex_pc),
     .clock(cpu_clock),
     .rs1_data(ex_rs1_data_forwarded),
     .rs2_data(ex_rs2_data_forwarded),
     .immediate(ex_immediate),
     .branch_type(ex_branch_type),
+    .id_is_compact(id_is_compact),
+    .increment_pc(~if_misaligned_instruction && ~ex_alu_busy && (ex_should_branch || ~stall_l1i)),
     .if_pc(if_pc),
     .should_branch(ex_should_branch)
   );
@@ -145,9 +149,17 @@ module cpu (
     .should_cache(memory_controller_data_source == `DATA_SOURCE_ROM),
     .memory_controller_ready(~stall_l1i),
     .clock(cpu_clock),
-    .output_data(if_instruction),
+    .output_data(if_l1i_output_data),
     .hit(l1i_hit),
     .ready(l1i_ready)
+  );
+
+  fetch fetch (
+    .clock(cpu_clock),
+    .pc(if_pc),
+    .instruction_memory_output(if_l1i_output_data),
+    .instruction(if_instruction),
+    .misaligned_instruction(if_misaligned_instruction)
   );
 
   // memory instruction_memory (
@@ -166,9 +178,8 @@ module cpu (
     .if_pc(if_pc),
     .id_instruction(id_instruction),
     .id_pc(id_pc),
-    .reset(ex_should_branch || ~l1i_ready),
-    .stall(ex_alu_busy),
-    .forward_pc(~ex_alu_busy && (ex_should_branch || ~stall_l1i))
+    .reset(ex_should_branch || ~l1i_ready || if_misaligned_instruction),
+    .stall(ex_alu_busy)
   );
 
   decoder decoder (
@@ -184,7 +195,8 @@ module cpu (
     .mem_read(id_mem_read),
     .mem_op_length(id_mem_op_length),
     .branch_type(id_branch_type),
-    .atomic_op(id_atomic_op)
+    .atomic_op(id_atomic_op),
+    .is_compact(id_is_compact)
   );
 
   registers registers (

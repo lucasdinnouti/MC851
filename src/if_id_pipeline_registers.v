@@ -17,14 +17,10 @@ module if_id_pipeline_registers(
   always @(posedge clock) begin
     if (reset) begin
       instruction <= 0;
+      pc <= 0;
     end else if (!stall) begin
       instruction <= if_instruction;
-    end
-
-    if (forward_pc) begin
       pc <= if_pc;
-    end else begin
-      // Do nothing (keep pc value)
     end
   end
 endmodule

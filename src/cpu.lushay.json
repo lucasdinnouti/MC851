@@ -19,6 +19,7 @@
         "ex_mem_pipeline_registers.v",
         "mem_wb_pipeline_registers.v",
         "divider.v",
+        "fetch.v",
         "cpu.v"
     ],
     "top": "cpu",
