@@ -6,16 +6,16 @@ module atomic (
 );
   always @* begin
     case (op)
-      `ATOMIC_SWAP_OP: result = b;
-      `ATOMIC_ADD_OP: result = a + b;
-      `ATOMIC_XOR_OP: result = a ^ b;
-      `ATOMIC_AND_OP: result = a & b;
-      `ATOMIC_OR_OP: result = a | b;
-      `ATOMIC_MIN_OP: result = ($signed(a) < $signed(b)) ? a : b;
-      `ATOMIC_MAX_OP: result = ($signed(a) > $signed(b)) ? a : b;
-      `ATOMIC_MINU_OP: result = (a < b) ? a : b;
-      `ATOMIC_MAXU_OP: result = (a > b) ? a : b;
-      default: result = 0;
+      `ATOMIC_SWAP_OP: result <= b;
+      `ATOMIC_ADD_OP: result <= a + b;
+      `ATOMIC_XOR_OP: result <= a ^ b;
+      `ATOMIC_AND_OP: result <= a & b;
+      `ATOMIC_OR_OP: result <= a | b;
+      `ATOMIC_MIN_OP: result <= ($signed(a) < $signed(b)) ? a : b;
+      `ATOMIC_MAX_OP: result <= ($signed(a) > $signed(b)) ? a : b;
+      `ATOMIC_MINU_OP: result <= (a < b) ? a : b;
+      `ATOMIC_MAXU_OP: result <= (a > b) ? a : b;
+      default: result <= 0;
     endcase
   end
 endmodule

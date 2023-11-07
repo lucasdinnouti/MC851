@@ -5,7 +5,7 @@ module peripherals (
   input wire should_write,
   input wire clock,
   input wire [3:0] input_peripherals,
-  output wire [3:0] output_peripherals,
+  output reg [3:0] output_peripherals,
   output wire [31:0] output_data
 );
   reg data[7:0];

@@ -18,7 +18,6 @@ module registers (
 
   assign rs1_data = registers[rs1];
   assign rs2_data = registers[rs2];
-  // assign r1 = registers[1];
 
   always @(negedge clock) begin
     if (reg_write && rd != 0) begin

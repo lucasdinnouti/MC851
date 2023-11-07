@@ -8,6 +8,7 @@ module ex_mem_pipeline_registers(
   input wire ex_mem_read,
   input wire [2:0] ex_mem_op_length,
   input wire [4:0] ex_atomic_op,
+  input wire reset,
   output wire [31:0] mem_result,
   output wire [31:0] mem_rs2_data_forwarded,
   output wire [4:0] mem_rd,
@@ -36,13 +37,24 @@ module ex_mem_pipeline_registers(
   assign mem_atomic_op = atomic_op;
 
   always @(posedge clock) begin
-    result <= ex_result;
-    rs2_data_forwarded <= ex_rs2_data_forwarded;
-    rd <= ex_rd;
-    reg_write <= ex_reg_write;
-    mem_write <= ex_mem_write;
-    mem_read <= ex_mem_read;
-    mem_op_length <= ex_mem_op_length;
-    atomic_op <= ex_atomic_op;
+    if (reset) begin
+      result <= 0;
+      rs2_data_forwarded <= 0;
+      rd <= 0;
+      reg_write <= 0;
+      mem_write <= 0;
+      mem_read <= 0;
+      mem_op_length <= 0;
+      atomic_op <= `ATOMIC_NO_OP;
+    end else begin
+      result <= ex_result;
+      rs2_data_forwarded <= ex_rs2_data_forwarded;
+      rd <= ex_rd;
+      reg_write <= ex_reg_write;
+      mem_write <= ex_mem_write;
+      mem_read <= ex_mem_read;
+      mem_op_length <= ex_mem_op_length;
+      atomic_op <= ex_atomic_op;
+    end
   end
 endmodule

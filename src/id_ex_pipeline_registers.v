@@ -15,6 +15,7 @@ module id_ex_pipeline_registers(
   input wire [31:0] id_pc,
   input wire [3:0] id_branch_type,
   input wire [4:0] id_atomic_op,
+  input wire reset,
   input wire stall,
   output wire [31:0] ex_rs1_data,
   output wire [31:0] ex_rs2_data,
@@ -65,7 +66,7 @@ module id_ex_pipeline_registers(
   assign ex_atomic_op = atomic_op;
 
   always @(posedge clock) begin
-    if (stall) begin
+    if (reset) begin
       rs1_data <= 0;
       rs2_data <= 0;
       alu_op <= 0;
@@ -81,7 +82,7 @@ module id_ex_pipeline_registers(
       pc <= 0;
       branch_type <= `BRANCH_NONE;
       atomic_op <= `ATOMIC_NO_OP;
-    end else begin 
+    end else if (!stall) begin 
       rs1_data <= id_rs1_data;
       rs2_data <= id_rs2_data;
       alu_op <= id_alu_op;

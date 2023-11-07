@@ -36,6 +36,7 @@ module cpu (
   wire [31:0] ex_rs2_data_forwarded;
   wire [31:0] ex_alu_b;
   wire [4:0] ex_alu_op;
+  wire ex_alu_busy;
   wire [4:0] ex_rd;
   wire [4:0] ex_rs1;
   wire [4:0] ex_rs2;
@@ -77,6 +78,7 @@ module cpu (
   wire l1i_hit, l1d_hit;
   wire l1i_ready, l1d_ready;
   wire [31:0] memory_controller_output_data;
+  wire [1:0] memory_controller_data_source;
   wire stall_l1i, stall_l1d;
   assign l1i_address = if_pc;
 
@@ -114,12 +116,14 @@ module cpu (
     .input_peripherals(input_peripherals),
     .output_peripherals(output_peripherals),
     .output_data(memory_controller_output_data),
+    .data_source(memory_controller_data_source),
     .stall_l1i(stall_l1i),
     .stall_l1d(stall_l1d)
   );
 
   branch branch (
     .id_pc(id_pc),
+    .ex_pc(ex_pc),
     .clock(cpu_clock),
     .rs1_data(ex_rs1_data_forwarded),
     .rs2_data(ex_rs2_data_forwarded),
@@ -134,6 +138,7 @@ module cpu (
     .input_data(0),
     .should_write(1'b0),
     .memory_controller_output_data(memory_controller_output_data),
+    .should_cache(memory_controller_data_source == `DATA_SOURCE_ROM),
     .memory_controller_ready(~stall_l1i),
     .clock(cpu_clock),
     .output_data(if_instruction),
@@ -157,7 +162,9 @@ module cpu (
     .if_pc(if_pc),
     .id_instruction(id_instruction),
     .id_pc(id_pc),
-    .stall(ex_should_branch || ~l1i_ready)
+    .reset(ex_should_branch || ~l1i_ready),
+    .stall(ex_alu_busy),
+    .forward_pc(~ex_alu_busy && (ex_should_branch || ~stall_l1i))
   );
 
   decoder decoder (
@@ -220,7 +227,8 @@ module cpu (
     .ex_pc(ex_pc),
     .ex_branch_type(ex_branch_type),
     .ex_atomic_op(ex_atomic_op),
-    .stall(ex_should_branch)
+    .reset(ex_should_branch),
+    .stall(ex_alu_busy)
   );
 
   forwarding forwarding(
@@ -245,10 +253,12 @@ module cpu (
   assign ex_alu_b = (ex_alu_use_rs2 == 0) ? ex_immediate : ex_rs2_data_forwarded;
 
   alu alu (
+    .clock(cpu_clock),
     .a(ex_rs1_data_forwarded),
     .b(ex_alu_b),
     .op(ex_alu_op),
-    .result(ex_alu_result)
+    .result(ex_alu_result),
+    .busy(ex_alu_busy)
   );
 
   assign ex_next_instruction_address = ex_pc + 4;
@@ -271,7 +281,8 @@ module cpu (
     .mem_mem_write(mem_mem_write),
     .mem_mem_read(mem_mem_read),
     .mem_mem_op_length(mem_mem_op_length),
-    .mem_atomic_op(mem_atomic_op)
+    .mem_atomic_op(mem_atomic_op),
+    .reset(ex_alu_busy)
   );
 
   assign mem_input_data = (mem_atomic_op == `ATOMIC_NO_OP) ? mem_rs2_data_forwarded : mem_atomic_result;
@@ -280,6 +291,7 @@ module cpu (
     .input_data(mem_input_data),
     .should_write(mem_mem_write),
     .memory_controller_output_data(memory_controller_output_data),
+    .should_cache(memory_controller_data_source == `DATA_SOURCE_RAM),
     .memory_controller_ready(~stall_l1d),
     .clock(cpu_clock),
     .output_data(mem_mem_data),
@@ -317,7 +329,8 @@ module cpu (
     .wb_mem_data(wb_mem_data),
     .wb_rd(wb_rd),
     .wb_reg_write(wb_reg_write),
-    .wb_mem_read(wb_mem_read)
+    .wb_mem_read(wb_mem_read),
+    .reset(1'b0)
   );
 
   assign wb_rd_data = wb_mem_read == 0 ? wb_result : wb_mem_data;

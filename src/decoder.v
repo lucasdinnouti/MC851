@@ -33,45 +33,45 @@ module decoder (
   always @* begin
     if (opcode == `LOAD_OP || opcode == `STORE_OP || opcode == `ATOMIC_OP) begin
       // Load, store and atomic will add address with offset
-      alu_op = `ALU_ADD_OP;
+      alu_op <= `ALU_ADD_OP;
     end else if (opcode == `IMM_OP && funct3 != 3'b101) begin
       // Immediate instructions except for SRLI and SRAI
-      alu_op = {2'b00, funct3};
+      alu_op <= {2'b00, funct3};
     end else begin
-      alu_op = {instruction[25], instruction[30], funct3};
+      alu_op <= {instruction[25], instruction[30], funct3};
     end
 
     if (opcode == `IMM_OP && funct3 == 3'b101) begin
       // SRLI and SRAI shamt immediate
-      immediate = instruction[24:20];
+      immediate <= instruction[24:20];
     end else if (opcode == `STORE_OP) begin
-      immediate = $signed({instruction[31:25], instruction[11:7]});
+      immediate <= $signed({instruction[31:25], instruction[11:7]});
     end else if (opcode == `BRANCH_OP) begin
-      immediate = $signed({instruction[31:31], instruction[7:7], instruction[30:25],
+      immediate <= $signed({instruction[31:31], instruction[7:7], instruction[30:25],
                            instruction[11:8], 1'b0});
     end else if (opcode == `ATOMIC_OP) begin
-      immediate = 0;
+      immediate <= 0;
     end else if (opcode == `JAL_OP) begin
-      immediate = $signed({instruction[31:31], instruction[19:12], instruction[20:20],
+      immediate <= $signed({instruction[31:31], instruction[19:12], instruction[20:20],
                            instruction[30:21], 1'b0});
     end else begin
-      immediate = $signed(instruction[31:20]);
+      immediate <= $signed(instruction[31:20]);
     end
 
     if (opcode == `BRANCH_OP) begin
-      branch_type = {1'b0, funct3};
+      branch_type <= {1'b0, funct3};
     end else if (opcode == `JAL_OP) begin
-      branch_type = `BRANCH_JAL;
+      branch_type <= `BRANCH_JAL;
     end else if (opcode == `JALR_OP) begin
-      branch_type = `BRANCH_JALR;
+      branch_type <= `BRANCH_JALR;
     end else begin
-      branch_type = `BRANCH_NONE;
+      branch_type <= `BRANCH_NONE;
     end
 
     if (opcode == `ATOMIC_OP) begin
-      atomic_op = instruction[31:27];
+      atomic_op <= instruction[31:27];
     end else begin
-      atomic_op = `ATOMIC_NO_OP;
+      atomic_op <= `ATOMIC_NO_OP;
     end
   end
 endmodule
