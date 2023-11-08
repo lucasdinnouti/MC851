@@ -58,6 +58,7 @@
 `define DATA_SOURCE_NONE 2'b00
 `define DATA_SOURCE_ROM 2'b01
 `define DATA_SOURCE_RAM 2'b10
+`define DATA_SOURCE_PER 2'b11
 
 `define SIGN_POSITIVE 1'b0
 `define SIGN_NEGATIVE 1'b1
