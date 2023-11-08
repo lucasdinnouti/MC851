@@ -122,13 +122,13 @@ module cpu (
   );
 
   branch branch (
-    .id_pc(id_pc),
     .ex_pc(ex_pc),
     .clock(cpu_clock),
     .rs1_data(ex_rs1_data_forwarded),
     .rs2_data(ex_rs2_data_forwarded),
     .immediate(ex_immediate),
     .branch_type(ex_branch_type),
+    .increment_pc(~ex_alu_busy && (ex_should_branch || ~stall_l1i)),
     .if_pc(if_pc),
     .should_branch(ex_should_branch)
   );
@@ -163,8 +163,7 @@ module cpu (
     .id_instruction(id_instruction),
     .id_pc(id_pc),
     .reset(ex_should_branch || ~l1i_ready),
-    .stall(ex_alu_busy),
-    .forward_pc(~ex_alu_busy && (ex_should_branch || ~stall_l1i))
+    .stall(ex_alu_busy)
   );
 
   decoder decoder (
