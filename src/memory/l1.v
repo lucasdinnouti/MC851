@@ -43,7 +43,7 @@ module l1 (
   always @(negedge clock) begin
     // valid[current_index] <= should_write || (~cache_hit && memory_controller_ready);
 
-    if (should_write) begin
+    if (should_write && should_cache) begin
       lines[current_index] <= input_data;
       tags[current_index] <= current_tag;
       valid[current_index] <= 1;

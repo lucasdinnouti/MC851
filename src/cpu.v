@@ -101,8 +101,8 @@ module cpu (
   end
 `endif
 
-  assign led[5] = ~cpu_clock;
-  assign led[4:0] = ~wb_rd_data[4:0];
+  assign led[4] = ~cpu_clock;
+  assign led[3:0] = 4'b1111;
 
   //assign output_peripherals[0] = wb_rd[0];
   //assign output_peripherals[1] = wb_rd_data[0];

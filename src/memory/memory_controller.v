@@ -26,7 +26,7 @@ module memory_controller (
   wire [31:0] per_output;
 
   wire peripheral_op;
-  assign peripheral_op = l1d_address[31];
+  assign peripheral_op = l1d_address[8];
 
   assign output_data = peripheral_op ? per_output : (l1d_mem_read ? ram_output : (l1d_mem_write ? 32'h0 : rom_output));
   assign data_source = peripheral_op ? `DATA_SOURCE_PER : (l1d_mem_read ? `DATA_SOURCE_RAM : (l1d_mem_write ? `DATA_SOURCE_NONE : `DATA_SOURCE_ROM));
@@ -49,7 +49,7 @@ module memory_controller (
   );
 
   peripherals peripherals(
-    .address(l1d_address - ROM_SIZE << 2),
+    .address(l1d_address),
     .input_data(l1d_input_data),
     .should_write((peripheral_op && l1d_mem_write)),
     .clock(clock),
