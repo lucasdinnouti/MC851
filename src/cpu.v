@@ -102,7 +102,7 @@ module cpu (
 `endif
 
   assign led[3] = ~cpu_clock;
-  assign led[2:0] = ~r1[2:0];
+  assign led[2:0] = ~wb_rd_data[2:0];
   // assign led[3:0] = ~wb_result[3:0];
 
   memory_controller memory_controller (
@@ -191,7 +191,7 @@ module cpu (
     .clock(cpu_clock),
     .rs1_data(id_rs1_data),
     .rs2_data(id_rs2_data),
-    .r1(r1)
+    // .r1(r1)
   );
 
   id_ex_pipeline_registers id_ex_pipeline_registers (

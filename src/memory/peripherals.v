@@ -34,12 +34,12 @@ module peripherals (
     
     output_peripherals[0] = data[0];
     output_peripherals[1] = data[1];
-    // output_peripherals[2] = ~data[2];
-    // output_peripherals[3] = ~data[3];
+    output_peripherals[2] = ~data[2];
+    output_peripherals[3] = ~data[3];
 
     // debug - hardwires leds to sensors
-    output_peripherals[2] = ~input_peripherals[0];
-    output_peripherals[3] = ~input_peripherals[1];
+    // output_peripherals[2] = ~input_peripherals[0];
+    // output_peripherals[3] = ~input_peripherals[1];
   end
 
   always @(negedge clock) begin

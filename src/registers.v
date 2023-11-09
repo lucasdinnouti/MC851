@@ -6,8 +6,8 @@ module registers (
     input wire reg_write,
     input wire clock,
     output wire [31:0] rs1_data,
-    output wire [31:0] rs2_data,
-    output reg [31:0] r1 = 0
+    output wire [31:0] rs2_data //,
+    // output reg [31:0] r1 = 0
 );
   
   reg [31:0] registers[31:0];
@@ -24,6 +24,6 @@ module registers (
       registers[rd] = data;
     end
 
-    r1 = registers[1];
+    // r1 = registers[1];
   end
 endmodule
