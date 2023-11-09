@@ -3,3 +3,7 @@ cpu_pnr.json
 cpu.json
 *.vcd
 *.out
+cpu.gprj.user
+impl/gwsynthesis
+impl/pnr
+impl/temp

@@ -14,11 +14,6 @@ module peripherals (
   assign index = address[2:0];
   assign output_data = 32'h00000000 || data[index];
 
-  always @(negedge clock) begin
-    if (should_write) begin
-      data[index] <= input_data[31];
-    end
-  end
 
   // PERIPHERALS CONVENTION
   // input_peripherals[0] - analog port 25;
@@ -43,6 +38,10 @@ module peripherals (
   end
 
   always @(negedge clock) begin
+    if (should_write) begin
+      data[index] = input_data[31];
+    end
+
     data[4] = input_peripherals[0];
     data[5] = input_peripherals[1];
     data[6] = input_peripherals[2];

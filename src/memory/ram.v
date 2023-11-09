@@ -8,9 +8,9 @@ module ram (
   parameter SIZE_WORDS = 32;
   reg [31:0] data[SIZE_WORDS - 1:0];
 
-  integer i = 0;
+  integer i;
   initial begin
-    for (i = 0; i < SIZE_WORDS; i++) begin
+    for (i = 0; i < SIZE_WORDS; i = i + 1) begin
       data[i] = 0;
     end
   end

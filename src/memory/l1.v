@@ -24,7 +24,7 @@ module l1 (
 
   integer i;
   initial begin
-    for (i = 0; i < CACHE_LINES; i++) begin
+    for (i = 0; i < CACHE_LINES; i = i + 1) begin
       valid[i] <= 0;
       tags[i] <= 0;
       lines[i] <= 0;
