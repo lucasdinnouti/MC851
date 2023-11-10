@@ -89,7 +89,7 @@ module cpu (
 `else
   // Controlled clock
   reg cpu_clock = 0;
-  localparam WAIT_TIME = 13500;
+  localparam WAIT_TIME = 135000;
   reg [23:0] clock_counter = 0;
   always @(posedge clock) begin
     if (clock_counter < WAIT_TIME) begin
