@@ -8,8 +8,8 @@ module peripherals (
   output reg [3:0] output_peripherals = 0,
   output wire [31:0] output_data
 );
-  wire [2:0] index;
-  assign index = address[2:0];
+  wire [1:0] index;
+  assign index = address[1:0];
   assign output_data = { 31'h0, input_peripherals[index] };
 
   always @(negedge clock) begin
