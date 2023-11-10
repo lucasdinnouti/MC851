@@ -1,3 +1,5 @@
+`include "constants.v"
+
 module alu (
     input wire clock,
     input wire [31:0] a,

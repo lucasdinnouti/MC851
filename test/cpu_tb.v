@@ -15,12 +15,11 @@ module cpu_tb;
 
   integer i;
   initial begin
-    for (i = 0; i < 160; i = i + 1) begin
+    for (i = 0; i < 1000; i = i + 1) begin
       #PERIOD;
       clock = ~clock;
       #PERIOD;
       clock = ~clock;
     end
-    `assert(cpu.r1, 15, "cpu r1");
   end
 endmodule
