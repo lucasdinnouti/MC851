@@ -1,26 +1,29 @@
-IO_LOC  "output_peripherals[3]" 30;
-IO_PORT "output_peripherals[3]" DRIVE=8 IO_TYPE=LVCMOS33;
-
-IO_LOC  "output_peripherals[2]" 29;
-IO_PORT "output_peripherals[2]" DRIVE=8 IO_TYPE=LVCMOS33;
+IO_LOC  "input_peripherals[0]" 25;
+IO_PORT "input_peripherals[0]" IO_TYPE=LVCMOS33 PULL_MODE=DOWN;
 
 IO_LOC  "input_peripherals[1]" 26;
 IO_PORT "input_peripherals[1]" IO_TYPE=LVCMOS33 PULL_MODE=DOWN;
 
-IO_LOC  "input_peripherals[2]" 80;
+IO_LOC  "input_peripherals[2]" 3;
 IO_PORT "input_peripherals[2]" IO_TYPE=LVCMOS18;
 
 IO_LOC  "input_peripherals[3]" 4;
 IO_PORT "input_peripherals[3]" IO_TYPE=LVCMOS18;
 
+IO_LOC  "output_peripherals[0]" 27;
+IO_PORT "output_peripherals[0]" DRIVE=8 IO_TYPE=LVCMOS33;
+
 IO_LOC  "output_peripherals[1]" 28;
 IO_PORT "output_peripherals[1]" DRIVE=8 IO_TYPE=LVCMOS33;
 
+IO_LOC  "output_peripherals[2]" 29;
+IO_PORT "output_peripherals[2]" DRIVE=8 IO_TYPE=LVCMOS33;
+
+IO_LOC  "output_peripherals[3]" 10;
+IO_PORT "output_peripherals[3]" DRIVE=8 IO_TYPE=LVCMOS18;
+
 IO_LOC  "clock" 52;
 IO_PORT "clock" IO_TYPE=LVCMOS33 PULL_MODE=UP;
-
-IO_LOC  "output_peripherals[0]" 10;
-IO_PORT "output_peripherals[0]" DRIVE=8 IO_TYPE=LVCMOS18;
 
 IO_LOC  "led[0]" 11;
 IO_PORT "led[0]" DRIVE=8 IO_TYPE=LVCMOS18;
@@ -36,6 +39,3 @@ IO_PORT "led[3]" DRIVE=8 IO_TYPE=LVCMOS18;
 
 IO_LOC  "led[4]" 16;
 IO_PORT "led[4]" DRIVE=8 IO_TYPE=LVCMOS18;
-
-IO_LOC  "input_peripherals[0]" 3;
-IO_PORT "input_peripherals[0]" IO_TYPE=LVCMOS18;

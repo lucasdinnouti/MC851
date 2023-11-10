@@ -89,7 +89,7 @@ module cpu (
 `else
   // Controlled clock
   reg cpu_clock = 0;
-  localparam WAIT_TIME = 13500000;
+  localparam WAIT_TIME = 135000;
   reg [23:0] clock_counter = 0;
   always @(posedge clock) begin
     if (clock_counter < WAIT_TIME) begin
@@ -101,7 +101,7 @@ module cpu (
   end
 `endif
 
-  assign led[4] = ~cpu_clock;
+  // assign led[4] = ~cpu_clock;
   assign led[3:0] = 4'b1111;
 
   //assign output_peripherals[0] = wb_rd[0];
