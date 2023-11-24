@@ -7,7 +7,7 @@ int operation(int n) {
 }
 
 void main() {
-    int* output = 512;
+    int* output = 515;
     int result = operation(50);
     if (result == 60) {
         *output = 1;

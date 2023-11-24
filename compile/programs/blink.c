@@ -1,5 +1,5 @@
 void main() {
-    int* output = 512;
+    int* output = 515;
     int n = 0;
     int current = 0;
     while (1) {
