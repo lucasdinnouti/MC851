@@ -8,6 +8,8 @@ module cpu (
   wire [31:0] if_l1i_output_data;
   wire [31:0] if_instruction;
   wire if_misaligned_instruction;
+  wire if_is_compact;
+  wire if_previous_misaligned;
 
   wire [31:0] peripheral_bus;
   wire [31:0] wb_peripheral_bus;
@@ -29,7 +31,6 @@ module cpu (
   wire ex_should_branch;
   wire [31:0] id_pc;
   wire [4:0] id_atomic_op;
-  wire id_is_compact;
 
   wire alu_should_bypass_a, alu_should_bypass_b;
 
@@ -83,7 +84,7 @@ module cpu (
   wire [31:0] memory_controller_output_data;
   wire [1:0] memory_controller_data_source;
   wire stall_l1i, stall_l1d;
-  assign l1i_address = if_pc;
+  assign l1i_address = if_previous_misaligned ? (if_pc + 2) : if_pc;
 
 `ifdef SIMULATOR
   // Uncontrolled clock
@@ -135,7 +136,7 @@ module cpu (
     .rs2_data(ex_rs2_data_forwarded),
     .immediate(ex_immediate),
     .branch_type(ex_branch_type),
-    .id_is_compact(id_is_compact),
+    .if_is_compact(if_is_compact),
     .increment_pc(~if_misaligned_instruction && ~ex_alu_busy && (ex_should_branch || ~stall_l1i)),
     .if_pc(if_pc),
     .should_branch(ex_should_branch)
@@ -154,12 +155,15 @@ module cpu (
     .ready(l1i_ready)
   );
 
+  assign if_is_compact = (if_instruction[1:0] != 2'b11 && if_instruction != 32'b0);
+
   fetch fetch (
     .clock(cpu_clock),
     .pc(if_pc),
     .instruction_memory_output(if_l1i_output_data),
     .instruction(if_instruction),
-    .misaligned_instruction(if_misaligned_instruction)
+    .misaligned_instruction(if_misaligned_instruction),
+    .previous_misaligned(if_previous_misaligned)
   );
 
   if_id_pipeline_registers if_id_pipeline_registers (
@@ -185,8 +189,7 @@ module cpu (
     .mem_read(id_mem_read),
     .mem_op_length(id_mem_op_length),
     .branch_type(id_branch_type),
-    .atomic_op(id_atomic_op),
-    .is_compact(id_is_compact)
+    .atomic_op(id_atomic_op)
   );
 
   registers registers (

@@ -5,7 +5,7 @@ module branch (
     input wire [31:0] rs2_data,
     input wire [31:0] immediate,
     input wire [3:0] branch_type,
-    input wire id_is_compact,
+    input wire if_is_compact,
     input wire increment_pc,
     output reg [31:0] if_pc = 0,
     output reg should_branch = 0
@@ -33,7 +33,7 @@ module branch (
         if_pc <= ex_pc + immediate;
       end
     end else if (increment_pc) begin
-      if_pc <= if_pc + (id_is_compact ? 2 : 4);
+      if_pc <= if_pc + (if_is_compact ? 2 : 4);
     end
   end
 endmodule

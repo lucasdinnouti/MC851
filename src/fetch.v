@@ -3,17 +3,17 @@ module fetch (
   input wire [31:0] pc,
   input wire [31:0] instruction_memory_output,
   output reg [31:0] instruction,
-  output wire misaligned_instruction
+  output reg misaligned_instruction = 0,
+  output reg previous_misaligned = 0
 );
   reg [15:0] previous_instruction_half = 0;
-  reg previous_misaligned = 0;
-
-  assign misaligned_instruction = pc[1] == 1;
 
   always @(posedge clock) begin
     if (previous_misaligned) begin
       previous_misaligned <= 0;
-    end else if (misaligned_instruction) begin
+      misaligned_instruction <= 0;
+    end else if (pc[1] == 1) begin
+      misaligned_instruction <= 1;
       previous_instruction_half <= instruction_memory_output[31:16];
       previous_misaligned <= 1;
     end

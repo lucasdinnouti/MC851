@@ -49,6 +49,14 @@
     `assert(mem_write, 0, name, "mem_write"); \
     `assert(mem_read, 0, name, "mem_read");
 
+`define assert_jal_instruction(name, expected_rd, expected_immediate) \
+    `assert(rd, expected_rd, name, "rd") \
+    `assert(immediate, expected_immediate, name, "immediate"); \
+    `assert(branch_type, `BRANCH_JAL, name, "branch_type"); \
+    `assert(reg_write, 1, name, "reg_write"); \
+    `assert(mem_write, 0, name, "mem_write"); \
+    `assert(mem_read, 0, name, "mem_read");
+
 `timescale 1 ns / 10 ps
 
 module decoder_tb;
@@ -242,6 +250,51 @@ module decoder_tb;
     instruction = 32'hfe939ee3;
     #PERIOD;
     `assert_branch_instruction("bne", 7, 9, -4, `BRANCH_NE);
+
+    // lw	x15, 0(x15) -- COMPACT
+    instruction = 32'h0000439c;
+    #PERIOD;
+    `assert_load_instruction("lw (compact)", 15, 0, 15, `MEM_WORD);
+
+    // lwsp	x8, 28(x2) -- COMPACT
+    instruction = 32'h00004472;
+    #PERIOD;
+    `assert_load_instruction("lwsp (compact)", 8, 28, 2, `MEM_WORD);
+
+    // sw	x14,0(x15)
+    instruction = 32'h0000c398;
+    #PERIOD;
+    `assert_store_instruction("sw (compact)", 14, 0, 15, `MEM_WORD);
+
+    // swsp	x8, 28(x2) -- COMPACT
+    instruction = 32'h0000ce22;
+    #PERIOD;
+    `assert_store_instruction("swsp (compact)", 8, 28, 2, `MEM_WORD);
+
+    // addi	x2, x2, -32 -- COMPACT            	
+    instruction = 32'h00001101;
+    #PERIOD;
+    `assert_immediate_instruction("addi (compact)", 2, 2, -32, `ALU_ADD_OP);
+
+    // li x14, 1 	
+    instruction = 32'h00004705;
+    #PERIOD;
+    `assert_immediate_instruction("li (compact)", 14, 0, 1, `ALU_ADD_OP);
+
+    // addi	x2, x2, 32
+    instruction = 32'h00006105;
+    #PERIOD;
+    `assert_immediate_instruction("addi16sp (compact)", 2, 2, 32, `ALU_ADD_OP);
+
+    // add	x8, x2, 32
+    instruction = 32'h00001000;
+    #PERIOD;
+    `assert_immediate_instruction("addi4spn (compact)", 8, 2, 32, `ALU_ADD_OP);
+
+    // jc -2
+    instruction = 32'h0000bffd;
+    #PERIOD;
+    `assert_jal_instruction("jc (compact)", 0, -2);
 
   end
 endmodule
