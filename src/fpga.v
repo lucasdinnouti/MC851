@@ -1,1 +1,1 @@
-`define PROGRAM `"full-instruction-set.riscv`"
+`define PROGRAM `"peripheral.riscv`"

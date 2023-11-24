@@ -12,7 +12,7 @@ Placa R4
 
 # Diagrama
 
-![arquitetura-cpu-5 drawio](https://github.com/lucasdinnouti/MC851/assets/32870665/1e222a4e-41b1-4984-a99e-ca64aef4eac6)
+![arquitetura](https://github.com/lucasdinnouti/MC851/assets/32870665/e791ab5a-f0b6-4139-8b19-5eb72288b701)
 
 # Roteiro
 

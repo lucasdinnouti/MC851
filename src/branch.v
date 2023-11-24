@@ -26,7 +26,7 @@ module branch (
   end
 
   always @(posedge clock) begin
-   if (should_branch) begin
+    if (should_branch) begin
       if (branch_type == `BRANCH_JALR) begin
         if_pc <= rs1_data + immediate;
       end else begin

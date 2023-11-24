@@ -4,7 +4,6 @@ module if_id_pipeline_registers(
   input wire [31:0] if_pc,
   input wire reset,
   input wire stall,
-  input wire forward_pc,
   output wire [31:0] id_instruction,
   output wire [31:0] id_pc
 );

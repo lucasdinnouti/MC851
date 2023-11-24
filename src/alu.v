@@ -1,3 +1,5 @@
+`include "constants.v"
+
 module alu (
     input wire clock,
     input wire [31:0] a,
@@ -23,12 +25,12 @@ module alu (
     case (op)
       `ALU_ADD_OP: result <= a + b;
       `ALU_SUB_OP: result <= a + (~b + 1);
-      `ALU_SLL_OP: result <= a << b;
+      `ALU_SLL_OP: result <= a << b[4:0];
       `ALU_XOR_OP: result <= a ^ b;
       `ALU_OR_OP: result <= a | b;
       `ALU_AND_OP: result <= a & b;
-      `ALU_SRL_OP: result <= a >> b;
-      `ALU_SRA_OP: result <= $signed(a) >>> b;
+      `ALU_SRL_OP: result <= a >> b[4:0];
+      `ALU_SRA_OP: result <= $signed(a) >>> b[4:0];
       `ALU_SLT_OP: result <= $signed(a) < $signed(b) ? 1 : 0;
       `ALU_SLTU_OP: result <= a < b ? 1 : 0;
       `ALU_MUL_OP: result <= a * b;

@@ -52,17 +52,18 @@ module divider (
 
   always @(posedge clock) begin
     if (i < 32) begin
-      remainder = remainder << 1;
-      remainder[0] = aux[31];
-      aux = aux << 1;
-      result = result << 1;
+      // FIXME: This is broken on GoWIN synthesis
+      // remainder = remainder << 1;
+      // remainder[0] = aux[31];
+      // aux = aux << 1;
+      // result = result << 1;
 
-      if (remainder >= divisor) begin
-        remainder = remainder - divisor;
-        result[0] = 1'b1;
-      end
+      // if (remainder >= divisor) begin
+      //   remainder = remainder - divisor;
+      //   result[0] = 1'b1;
+      // end
 
-      i = i + 1'b1;
+      // i = i + 1'b1;
     end
   end
 endmodule

@@ -1,6 +1,7 @@
 module cpu (
   input wire clock,
-  input wire [1:0] photores,
+  input wire [3:0] input_peripherals,
+  output wire [3:0] output_peripherals,
   output wire [5:0] led
 );
   wire [31:0] if_pc;
@@ -91,7 +92,7 @@ module cpu (
 `else
   // Controlled clock
   reg cpu_clock = 0;
-  localparam WAIT_TIME = 13500000;
+  localparam WAIT_TIME = 135000;
   reg [23:0] clock_counter = 0;
   always @(posedge clock) begin
     if (clock_counter < WAIT_TIME) begin
@@ -103,16 +104,13 @@ module cpu (
   end
 `endif
 
-  assign led[5] = ~cpu_clock;     // alterna
-  //assign led[4] = ~wb_rd_data[0];
-  assign led[4:0] = ~wb_rd[4:0];
-  //assign led[1:0] = ~r1[1:0];
-  //assign led[4] = ~(~l1i_hit);  // 1
-  //assign led[3] = ~mem_mem_read;  // 0
-  //assign led[2] = ~mem_mem_write; // 0
-  //assign led[1:0] = ~wb_rd[1:0];  // 1 -> 2 -> 3 -> 3 -> 1
-  //                                
-  // assign led[4:0] = ~wb_result[4:0];
+  // assign led[4] = ~cpu_clock;
+  assign led[3:0] = 4'b1111;
+
+  //assign output_peripherals[0] = wb_rd[0];
+  //assign output_peripherals[1] = wb_rd_data[0];
+  //assign output_peripherals[2] = wb_reg_write;
+  // assign led[3:0] = ~wb_result[3:0];
 
   memory_controller memory_controller (
     .l1i_address(l1i_address),
@@ -122,6 +120,8 @@ module cpu (
     .l1d_mem_write(mem_mem_write),
     .l1d_mem_read(~l1d_hit && mem_mem_read),
     .clock(cpu_clock),
+    .input_peripherals(input_peripherals),
+    .output_peripherals(output_peripherals),
     .output_data(memory_controller_output_data),
     .data_source(memory_controller_data_source),
     .stall_l1i(stall_l1i),
@@ -162,16 +162,6 @@ module cpu (
     .misaligned_instruction(if_misaligned_instruction)
   );
 
-  // memory instruction_memory (
-  //     .address(if_pc >> 2),
-  //     .input_data(0),
-  //     .mem_read(1'b1),
-  //     .mem_write(1'b0),
-  //     .mem_type(`MEM_ROM),
-  //     .clock(cpu_clock),
-  //     .output_data(if_instruction)
-  // );
-
   if_id_pipeline_registers if_id_pipeline_registers (
     .clock(cpu_clock),
     .if_instruction(if_instruction),
@@ -207,17 +197,8 @@ module cpu (
     .reg_write(wb_reg_write),
     .clock(cpu_clock),
     .rs1_data(id_rs1_data),
-    .rs2_data(id_rs2_data),
-    .r1(r1)
+    .rs2_data(id_rs2_data)
   );
-
-  // peripherals peripherals(
-  //   .peripheral_bus(peripheral_bus),
-  //   .btn(btn),
-  //   .photores(photores),
-  //   .led(led[4:0]),
-  //   .wb_peripheral_bus(wb_peripheral_bus)
-  // );
 
   id_ex_pipeline_registers id_ex_pipeline_registers (
     .clock(cpu_clock),
@@ -322,18 +303,6 @@ module cpu (
     .hit(l1d_hit),
     .ready(l1d_ready)
   );
-
-  // memory data_memory (
-  //     .address(mem_result),
-  //     .input_data(mem_input_data),
-  //     .mem_write(mem_mem_write),
-  //     .mem_read(mem_mem_read),
-  //     .mem_type(`MEM_RAM),
-  //     .clock(cpu_clock),
-  //     .output_data(mem_mem_data),
-  //     .wb_peripheral_bus(wb_peripheral_bus),
-  //     .peripheral_bus(peripheral_bus)
-  // );
 
   atomic atomic(
     .a(mem_mem_data),
