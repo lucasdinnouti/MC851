@@ -3,10 +3,11 @@
 module cpu_tb;
   wire [5:0] led;
   reg clock = 0;
+  wire [3:0] output_peripherals;
 
   localparam PERIOD = 10;
 
-  cpu cpu (.clock(clock), .led(led));
+  cpu cpu (.clock(clock), .output_peripherals(output_peripherals), .led(led));
 
   initial begin
     $dumpfile("cpu.vcd");

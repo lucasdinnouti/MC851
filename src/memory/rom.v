@@ -3,7 +3,7 @@ module rom (
   input wire clock,
   output wire [31:0] output_data
 );
-  parameter SIZE_WORDS = 32;
+  parameter SIZE_WORDS = 64;
   reg [31:0] data[SIZE_WORDS - 1:0];
 
   initial begin

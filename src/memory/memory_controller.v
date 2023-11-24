@@ -13,8 +13,8 @@ module memory_controller (
   output wire stall_l1i,
   output wire stall_l1d
 );
-  parameter ROM_SIZE = 32;
-  parameter RAM_SIZE = 32;
+  parameter ROM_SIZE = 64;
+  parameter RAM_SIZE = 64;
 
   assign stall_l1d = 0;
   assign stall_l1i = (l1d_mem_read || l1d_mem_write) && l1i_mem_read;
@@ -26,10 +26,10 @@ module memory_controller (
   wire [31:0] per_output;
 
   wire peripheral_op;
-  assign peripheral_op = l1d_address[8];
+  assign peripheral_op = (l1d_mem_write || l1d_mem_read) && l1d_address[9];
 
   assign output_data = peripheral_op ? per_output : (l1d_mem_read ? ram_output : (l1d_mem_write ? 32'h0 : rom_output));
-  assign data_source = peripheral_op ? `DATA_SOURCE_PER : (l1d_mem_read ? `DATA_SOURCE_RAM : (l1d_mem_write ? `DATA_SOURCE_NONE : `DATA_SOURCE_ROM));
+  assign data_source = peripheral_op ? `DATA_SOURCE_PER : ((l1d_mem_read || l1d_mem_write) ? `DATA_SOURCE_RAM : `DATA_SOURCE_ROM);
 
   rom #(ROM_SIZE) rom(
     .address(l1i_address),
