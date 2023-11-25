@@ -13,6 +13,7 @@
         <File path="src/decoder.v" type="file.verilog" enable="1"/>
         <File path="src/divider.v" type="file.verilog" enable="1"/>
         <File path="src/ex_mem_pipeline_registers.v" type="file.verilog" enable="1"/>
+        <File path="src/fetch.v" type="file.verilog" enable="1"/>
         <File path="src/forwarding.v" type="file.verilog" enable="1"/>
         <File path="src/fpga.v" type="file.verilog" enable="1"/>
         <File path="src/id_ex_pipeline_registers.v" type="file.verilog" enable="1"/>

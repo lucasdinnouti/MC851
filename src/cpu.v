@@ -31,6 +31,7 @@ module cpu (
   wire ex_should_branch;
   wire [31:0] id_pc;
   wire [4:0] id_atomic_op;
+  wire id_is_compact;
 
   wire alu_should_bypass_a, alu_should_bypass_b;
 
@@ -56,6 +57,7 @@ module cpu (
   wire [31:0] ex_next_instruction_address;
   wire [31:0] ex_result;
   wire [4:0] ex_atomic_op;
+  wire ex_is_compact;
 
   wire [31:0] mem_result;
   wire [31:0] mem_rs2_data_forwarded;
@@ -172,7 +174,7 @@ module cpu (
     .if_pc(if_pc),
     .id_instruction(id_instruction),
     .id_pc(id_pc),
-    .reset(ex_should_branch || ~l1i_ready || if_misaligned_instruction),
+    .reset(ex_should_branch || ~l1i_ready),
     .stall(ex_alu_busy)
   );
 
@@ -189,7 +191,8 @@ module cpu (
     .mem_read(id_mem_read),
     .mem_op_length(id_mem_op_length),
     .branch_type(id_branch_type),
-    .atomic_op(id_atomic_op)
+    .atomic_op(id_atomic_op),
+    .is_compact(id_is_compact)
   );
 
   registers registers (
@@ -220,6 +223,7 @@ module cpu (
     .id_pc(id_pc),
     .id_branch_type(id_branch_type),
     .id_atomic_op(id_atomic_op),
+    .id_is_compact(id_is_compact),
     .ex_rs1_data(ex_rs1_data),
     .ex_rs2_data(ex_rs2_data),
     .ex_alu_op(ex_alu_op),
@@ -235,6 +239,7 @@ module cpu (
     .ex_pc(ex_pc),
     .ex_branch_type(ex_branch_type),
     .ex_atomic_op(ex_atomic_op),
+    .ex_is_compact(ex_is_compact),
     .reset(ex_should_branch),
     .stall(ex_alu_busy)
   );
@@ -269,7 +274,7 @@ module cpu (
     .busy(ex_alu_busy)
   );
 
-  assign ex_next_instruction_address = ex_pc + 4;
+  assign ex_next_instruction_address = ex_pc + (ex_is_compact ? 2 : 4);
   assign ex_result = (ex_branch_type == `BRANCH_JAL || ex_branch_type == `BRANCH_JALR) ? ex_next_instruction_address : ex_alu_result;
 
   ex_mem_pipeline_registers ex_mem_pipeline_registers(

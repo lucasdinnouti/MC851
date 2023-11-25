@@ -5,7 +5,8 @@
     `assert(immediate, expected_immediate, name, "immediate"); \
     `assert(alu_use_rs2, 0, name, "alu_use_rs2"); \
     `assert(alu_op, expected_alu_op, name, "alu_op"); \
-    `assert(reg_write, 1, name, "reg_write");
+    `assert(reg_write, 1, name, "reg_write"); \
+    `assert(branch_type, `BRANCH_NONE, name, "branch_type");
 
 `define assert_register_instruction(name, expected_rd, expected_rs1, expected_rs2, expected_alu_op) \
     `assert(rd, expected_rd, name, "rd"); \
@@ -13,7 +14,8 @@
     `assert(rs2, expected_rs2, name, "rs2"); \
     `assert(alu_use_rs2, 1, name, "alu_use_rs2"); \
     `assert(alu_op, expected_alu_op, name, "alu_op"); \
-    `assert(reg_write, 1, name, "reg_write");
+    `assert(reg_write, 1, name, "reg_write"); \
+    `assert(branch_type, `BRANCH_NONE, name, "branch_type");
 
 `define assert_load_instruction(name, expected_rd, expected_immediate, expected_rs1,
                                 expected_mem_op_length) \
@@ -25,7 +27,8 @@
     `assert(reg_write, 1, name, "reg_write") \
     `assert(mem_write, 0, name, "mem_write") \
     `assert(mem_read, 1, name, "mem_read") \
-    `assert(mem_op_length, expected_mem_op_length, name, "mem_op_length");
+    `assert(mem_op_length, expected_mem_op_length, name, "mem_op_length"); \
+    `assert(branch_type, `BRANCH_NONE, name, "branch_type");
 
 `define assert_store_instruction(name, expected_rs2, expected_immediate, expected_rs1,
                                  expected_mem_op_length) \
@@ -37,7 +40,8 @@
     `assert(reg_write, 0, name, "reg_write"); \
     `assert(mem_write, 1, name, "mem_write"); \
     `assert(mem_read, 0, name, "mem_read"); \
-    `assert(mem_op_length, expected_mem_op_length, name, "mem_op_length");
+    `assert(mem_op_length, expected_mem_op_length, name, "mem_op_length"); \
+    `assert(branch_type, `BRANCH_NONE, name, "branch_type");
 
 `define assert_branch_instruction(name, expected_rs1, expected_rs2, expected_immediate,
                                   expected_branch_type) \
@@ -56,6 +60,16 @@
     `assert(reg_write, 1, name, "reg_write"); \
     `assert(mem_write, 0, name, "mem_write"); \
     `assert(mem_read, 0, name, "mem_read");
+
+`define assert_jalr_instruction(name, expected_rd, expected_immediate, expected_rs1) \
+    `assert(rd, expected_rd, name, "rd") \
+    `assert(immediate, expected_immediate, name, "immediate"); \
+    `assert(rs1, expected_rs1, name, "rs1"); \
+    `assert(branch_type, `BRANCH_JALR, name, "branch_type"); \
+    `assert(reg_write, 1, name, "reg_write"); \
+    `assert(mem_write, 0, name, "mem_write"); \
+    `assert(mem_read, 0, name, "mem_read");
+
 
 `timescale 1 ns / 10 ps
 
@@ -295,6 +309,51 @@ module decoder_tb;
     instruction = 32'h0000bffd;
     #PERIOD;
     `assert_jal_instruction("jc (compact)", 0, -2);
+
+    // jr x1
+    instruction = 32'h00008082;
+    #PERIOD;
+    `assert_jalr_instruction("jr (compact)", 0, 0, 1);
+
+    // jal	10 <operation>
+    instruction = 32'h0000375d;
+    #PERIOD;
+    `assert_jal_instruction("jal (compact)", 1, -90);
+
+    // beqz	x15,54 <main+0x44>
+    instruction = 32'h0000c785;
+    #PERIOD;
+    `assert_branch_instruction("beqz (compact)", 15, 0, 40, `BRANCH_EQ);
+
+    // bnez	x15,54 <main+0x44>
+    instruction = 32'h0000e791;
+    #PERIOD;
+    `assert_branch_instruction("bnez (compact)", 15, 0, 12, `BRANCH_NE);
+
+    // sub	x14, x14, x15
+    instruction = 32'h00008f1d;
+    #PERIOD;
+    `assert_register_instruction("sub (compact)", 14, 14, 15, `ALU_SUB_OP);
+
+    // and	x15, x15, x14
+    instruction = 32'h00008ff9;
+    #PERIOD;
+    `assert_register_instruction("and (compact)", 15, 15, 14, `ALU_AND_OP);
+  
+    // or	x15, x15, x14
+    instruction = 32'h00008fd9;
+    #PERIOD;
+    `assert_register_instruction("or (compact)", 15, 15, 14, `ALU_OR_OP);
+  
+    // xor	x15, x15, x13
+    instruction = 32'h00008fb5;
+    #PERIOD;
+    `assert_register_instruction("xor (compact)", 15, 15, 13, `ALU_XOR_OP);
+  
+    // and	x15, x15, 10
+    instruction = 32'h00008ba9;
+    #PERIOD;
+    `assert_immediate_instruction("and (compact)", 15, 15, 10, `ALU_AND_OP);
 
   end
 endmodule
