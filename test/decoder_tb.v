@@ -6,6 +6,8 @@
     `assert(alu_use_rs2, 0, name, "alu_use_rs2"); \
     `assert(alu_op, expected_alu_op, name, "alu_op"); \
     `assert(reg_write, 1, name, "reg_write"); \
+    `assert(mem_write, 0, name, "mem_write") \
+    `assert(mem_read, 0, name, "mem_read") \
     `assert(branch_type, `BRANCH_NONE, name, "branch_type");
 
 `define assert_register_instruction(name, expected_rd, expected_rs1, expected_rs2, expected_alu_op) \
@@ -15,6 +17,8 @@
     `assert(alu_use_rs2, 1, name, "alu_use_rs2"); \
     `assert(alu_op, expected_alu_op, name, "alu_op"); \
     `assert(reg_write, 1, name, "reg_write"); \
+    `assert(mem_write, 0, name, "mem_write") \
+    `assert(mem_read, 0, name, "mem_read") \
     `assert(branch_type, `BRANCH_NONE, name, "branch_type");
 
 `define assert_load_instruction(name, expected_rd, expected_immediate, expected_rs1,
@@ -69,6 +73,16 @@
     `assert(reg_write, 1, name, "reg_write"); \
     `assert(mem_write, 0, name, "mem_write"); \
     `assert(mem_read, 0, name, "mem_read");
+
+`define assert_lui_instruction(name, expected_rd, expected_immediate) \
+    `assert(rd, expected_rd, name, "rd"); \
+    `assert(immediate, expected_immediate, name, "immediate"); \
+    `assert(rs1, 0, name, "rs1"); \
+    `assert(alu_op, `ALU_ADD_OP, name, "alu_op"); \
+    `assert(reg_write, 1, name, "reg_write"); \
+    `assert(mem_write, 0, name, "mem_write"); \
+    `assert(mem_read, 0, name, "mem_read"); \
+    `assert(branch_type, `BRANCH_NONE, name, "branch_type");
 
 
 `timescale 1 ns / 10 ps
@@ -265,42 +279,47 @@ module decoder_tb;
     #PERIOD;
     `assert_branch_instruction("bne", 7, 9, -4, `BRANCH_NE);
 
-    // lw	x15, 0(x15) -- COMPACT
+    // lui x15, 0xf4
+    instruction = 32'h000f47b7;
+    #PERIOD;
+    `assert_lui_instruction("lui", 15, 32'hf4 << 12);
+
+    // lw x15, 0(x15) -- COMPACT
     instruction = 32'h0000439c;
     #PERIOD;
     `assert_load_instruction("lw (compact)", 15, 0, 15, `MEM_WORD);
 
-    // lwsp	x8, 28(x2) -- COMPACT
+    // lwsp x8, 28(x2) -- COMPACT
     instruction = 32'h00004472;
     #PERIOD;
     `assert_load_instruction("lwsp (compact)", 8, 28, 2, `MEM_WORD);
 
-    // sw	x14,0(x15)
+    // sw x14,0(x15)
     instruction = 32'h0000c398;
     #PERIOD;
     `assert_store_instruction("sw (compact)", 14, 0, 15, `MEM_WORD);
 
-    // swsp	x8, 28(x2) -- COMPACT
+    // swsp x8, 28(x2) -- COMPACT
     instruction = 32'h0000ce22;
     #PERIOD;
     `assert_store_instruction("swsp (compact)", 8, 28, 2, `MEM_WORD);
 
-    // addi	x2, x2, -32 -- COMPACT            	
+    // addi x2, x2, -32 -- COMPACT             
     instruction = 32'h00001101;
     #PERIOD;
     `assert_immediate_instruction("addi (compact)", 2, 2, -32, `ALU_ADD_OP);
 
-    // li x14, 1 	
+    // li x14, 1  
     instruction = 32'h00004705;
     #PERIOD;
     `assert_immediate_instruction("li (compact)", 14, 0, 1, `ALU_ADD_OP);
 
-    // addi	x2, x2, 32
+    // addi x2, x2, 32
     instruction = 32'h00006105;
     #PERIOD;
     `assert_immediate_instruction("addi16sp (compact)", 2, 2, 32, `ALU_ADD_OP);
 
-    // add	x8, x2, 32
+    // add x8, x2, 32
     instruction = 32'h00001000;
     #PERIOD;
     `assert_immediate_instruction("addi4spn (compact)", 8, 2, 32, `ALU_ADD_OP);
@@ -315,45 +334,64 @@ module decoder_tb;
     #PERIOD;
     `assert_jalr_instruction("jr (compact)", 0, 0, 1);
 
-    // jal	10 <operation>
+    // jal 10 <operation>
     instruction = 32'h0000375d;
     #PERIOD;
     `assert_jal_instruction("jal (compact)", 1, -90);
 
-    // beqz	x15,54 <main+0x44>
+    // beqz x15,54 <main+0x44>
     instruction = 32'h0000c785;
     #PERIOD;
     `assert_branch_instruction("beqz (compact)", 15, 0, 40, `BRANCH_EQ);
 
-    // bnez	x15,54 <main+0x44>
+    // bnez x15,54 <main+0x44>
     instruction = 32'h0000e791;
     #PERIOD;
     `assert_branch_instruction("bnez (compact)", 15, 0, 12, `BRANCH_NE);
 
-    // sub	x14, x14, x15
+    // sub x14, x14, x15
     instruction = 32'h00008f1d;
     #PERIOD;
     `assert_register_instruction("sub (compact)", 14, 14, 15, `ALU_SUB_OP);
 
-    // and	x15, x15, x14
+    // and x15, x15, x14
     instruction = 32'h00008ff9;
     #PERIOD;
     `assert_register_instruction("and (compact)", 15, 15, 14, `ALU_AND_OP);
-  
-    // or	x15, x15, x14
+
+    // or x15, x15, x14
     instruction = 32'h00008fd9;
     #PERIOD;
     `assert_register_instruction("or (compact)", 15, 15, 14, `ALU_OR_OP);
-  
-    // xor	x15, x15, x13
+
+    // xor x15, x15, x13
     instruction = 32'h00008fb5;
     #PERIOD;
     `assert_register_instruction("xor (compact)", 15, 15, 13, `ALU_XOR_OP);
-  
-    // and	x15, x15, 10
+
+    // and x15, x15, 10
     instruction = 32'h00008ba9;
     #PERIOD;
     `assert_immediate_instruction("and (compact)", 15, 15, 10, `ALU_AND_OP);
 
+    // srai x15, x15, 2
+    instruction = 32'h00008789;
+    #PERIOD;
+    `assert_immediate_instruction("srai (compact)", 15, 15, 2, `ALU_SRA_OP);
+
+    // srli x15, x15, 2
+    instruction = 32'h00008389;
+    #PERIOD;
+    `assert_immediate_instruction("srli (compact)", 15, 15, 2, `ALU_SRL_OP);
+
+    // slli x15, x15, 2
+    instruction = 32'h0000078a;
+    #PERIOD;
+    `assert_immediate_instruction("slli (compact)", 15, 15, 2, `ALU_SLL_OP);
+
+    // lui x15, 2
+    instruction = 32'h00006789;
+    #PERIOD;
+    `assert_lui_instruction("lui (compact)", 15, 32'h2 << 12);
   end
 endmodule

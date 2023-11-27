@@ -3,8 +3,8 @@
 PROGRAM=compile/programs/$1
 OUTPUT=src/resources/$1-compiled.riscv
 
-riscv32-unknown-elf-gcc -c compile/header.s -g -march=rv32im -std=gnu99 -mabi=ilp32
-riscv32-unknown-elf-gcc -g -march=rv32im -std=gnu99 -mabi=ilp32 $PROGRAM.c -o $PROGRAM.elf -T compile/linker.ld -nostartfiles -lc -lm
+riscv32-unknown-elf-gcc -c compile/header.s -g -march=rv32imac -std=gnu99 -mabi=ilp32
+riscv32-unknown-elf-gcc -g -march=rv32imac -std=gnu99 -mabi=ilp32 $PROGRAM.c -o $PROGRAM.elf -T compile/linker.ld -nostartfiles -lc -lm
 
 echo "// ============================================================" > $OUTPUT
 cat $PROGRAM.c | awk '{print "// "$0}' >> $OUTPUT

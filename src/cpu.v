@@ -7,9 +7,9 @@ module cpu (
   wire [31:0] if_pc;
   wire [31:0] if_l1i_output_data;
   wire [31:0] if_instruction;
-  wire if_misaligned_instruction;
+  wire if_is_instruction_first_half;
   wire if_is_compact;
-  wire if_previous_misaligned;
+  wire if_is_instruction_second_half;
 
   wire [31:0] peripheral_bus;
   wire [31:0] wb_peripheral_bus;
@@ -86,7 +86,7 @@ module cpu (
   wire [31:0] memory_controller_output_data;
   wire [1:0] memory_controller_data_source;
   wire stall_l1i, stall_l1d;
-  assign l1i_address = if_previous_misaligned ? (if_pc + 2) : if_pc;
+  assign l1i_address = if_is_instruction_second_half ? (if_pc + 2) : if_pc;
 
 `ifdef SIMULATOR
   // Uncontrolled clock
@@ -95,7 +95,7 @@ module cpu (
 `else
   // Controlled clock
   reg cpu_clock = 0;
-  localparam WAIT_TIME = 135000;
+  localparam WAIT_TIME = 13500000;
   reg [23:0] clock_counter = 0;
   always @(posedge clock) begin
     if (clock_counter < WAIT_TIME) begin
@@ -107,13 +107,8 @@ module cpu (
   end
 `endif
 
-  // assign led[4] = ~cpu_clock;
+  assign led[4] = ~cpu_clock;
   assign led[3:0] = 4'b1111;
-
-  //assign output_peripherals[0] = wb_rd[0];
-  //assign output_peripherals[1] = wb_rd_data[0];
-  //assign output_peripherals[2] = wb_reg_write;
-  // assign led[3:0] = ~wb_result[3:0];
 
   memory_controller memory_controller (
     .l1i_address(l1i_address),
@@ -139,7 +134,7 @@ module cpu (
     .immediate(ex_immediate),
     .branch_type(ex_branch_type),
     .if_is_compact(if_is_compact),
-    .increment_pc(~if_misaligned_instruction && ~ex_alu_busy && (ex_should_branch || ~stall_l1i)),
+    .increment_pc(~if_is_instruction_first_half && ~ex_alu_busy && (ex_should_branch || ~stall_l1i)),
     .if_pc(if_pc),
     .should_branch(ex_should_branch)
   );
@@ -164,8 +159,8 @@ module cpu (
     .pc(if_pc),
     .instruction_memory_output(if_l1i_output_data),
     .instruction(if_instruction),
-    .misaligned_instruction(if_misaligned_instruction),
-    .previous_misaligned(if_previous_misaligned)
+    .is_instruction_first_half(if_is_instruction_first_half),
+    .is_instruction_second_half(if_is_instruction_second_half)
   );
 
   if_id_pipeline_registers if_id_pipeline_registers (
