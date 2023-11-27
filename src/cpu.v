@@ -11,9 +11,6 @@ module cpu (
   wire if_is_compact;
   wire if_is_instruction_second_half;
 
-  wire [31:0] peripheral_bus;
-  wire [31:0] wb_peripheral_bus;
-
   wire [31:0] id_instruction;
   wire [4:0] id_rs1;
   wire [4:0] id_rs2;
@@ -28,12 +25,9 @@ module cpu (
   wire [3:0] id_branch_type;
   wire [31:0] id_rs1_data;
   wire [31:0] id_rs2_data;
-  wire ex_should_branch;
   wire [31:0] id_pc;
   wire [4:0] id_atomic_op;
   wire id_is_compact;
-
-  wire alu_should_bypass_a, alu_should_bypass_b;
 
   wire [31:0] ex_rs1_data;
   wire [31:0] ex_rs2_data;
@@ -53,6 +47,7 @@ module cpu (
   wire ex_mem_read;
   wire [2:0] ex_mem_op_length;
   wire [31:0] ex_pc;
+  wire ex_should_branch;
   wire [3:0] ex_branch_type;
   wire [31:0] ex_next_instruction_address;
   wire [31:0] ex_result;
@@ -77,8 +72,6 @@ module cpu (
   wire wb_reg_write;
   wire [31:0] wb_mem_data;
   wire wb_mem_read;
-
-  wire [31:0] r1;
 
   wire [31:0] l1i_address;
   wire l1i_hit, l1d_hit;

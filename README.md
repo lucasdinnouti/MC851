@@ -14,6 +14,28 @@ Placa R4
 
 ![arquitetura](https://github.com/lucasdinnouti/MC851/assets/32870665/e791ab5a-f0b6-4139-8b19-5eb72288b701)
 
+# Execução
+
+Para executar testes com `iverilog`:
+```bash
+./test.sh
+```
+
+Para simular a execução de um programa presente na pasta `src/resources` com `iverilog`:
+```bash
+./simulate.sh <programa>
+```
+
+Para compilar um programa presente na pasta `compiled/programs` (é necessária a toolchain gnu risc-v ou utilização da imagem docker `compiled/Dockerfile`):
+```bash
+./compile.sh <programa>
+```
+
+Para carregar a síntese do programa na FPGA utilizando o `openFPGALoader` (é necessária a compilação utilizando o Gowin IDE, definindo o programa no arquivo `fpga.v`):
+```bash
+./program.sh
+```
+
 # Roteiro
 
 ## Etapa 1
