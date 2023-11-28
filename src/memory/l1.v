@@ -41,8 +41,6 @@ module l1 (
   assign cache_hit = current_tag == tags[current_index] && valid[current_index];
 
   always @(negedge clock) begin
-    // valid[current_index] <= should_write || (~cache_hit && memory_controller_ready);
-
     if (should_write && should_cache) begin
       lines[current_index] <= input_data;
       tags[current_index] <= current_tag;

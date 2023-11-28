@@ -21,7 +21,7 @@ run_test "ALU" constants.v ../test/assert.v divider.v alu.v ../test/alu_tb.v
 run_test "registers" ../test/assert.v registers.v ../test/registers_tb.v
 run_test "decoder" constants.v ../test/assert.v decoder.v ../test/decoder_tb.v
 
-TEST_PROGRAMS="led-compiled function-compiled arithmetic-compiled arithmetic-2-compiled memory-compiled"
+TEST_PROGRAMS="led-compiled function-compiled arithmetic-compiled arithmetic-2-compiled memory-compiled memory-2-compiled"
 
 for PROGRAM in $TEST_PROGRAMS; do
     PROGRAM_ENV="\`\"$PROGRAM.riscv\`\""
