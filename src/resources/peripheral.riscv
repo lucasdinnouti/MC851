@@ -3,55 +3,57 @@
 // addi x2, zero, 0
 // 
 // loop:
-// lw x1, 256(zero)
+// lw x1, 512(zero)
 // bne x1, zero, loop
 // 
-// sw x3, 259(zero)
+// sw x3, 515(zero)
 // 
 // trigger:
-// lw x1, 257(zero)
+// lw x1, 513(zero)
 // addi x2, x2, 1
 // 
 // srai x4, x2, 10
-// sw x4, 259(zero)
+// sw x4, 515(zero)
 // 
 // bne x1, zero, trigger
 // 
-// sw zero, 259(zero)
+// sw zero, 515(zero)
 // 
 // addi x1, zero, 10
 // bge x2, x1, slow 
 // j fast
 // 
 // slow:
-// sw x3, 257(zero)
-// sw zero, 258(zero)
+// sw x3, 513(zero)
+// sw zero, 514(zero)
 // j begin
 // 
 // fast:
-// sw x3, 258(zero)
-// sw zero, 257(zero)
+// sw x3, 514(zero)
+// sw zero, 513(zero)
 // j begin
 
 00000000
 00000000
 00100193
 00000113
-10002083
+20002083
 fe009ee3
-103021a3
-10102083
+203021a3
+20102083
 00110113
-fe009ce3
-100021a3
+40a15213
+204021a3
+fe0098e3
+200021a3
 00a00093
 00115463
 0100006f
-103020a3
-10002123
-fc9ff06f
-10302123
-100020a3
-fbdff06f
+203020a3
+20002123
+fc1ff06f
+20302123
+200020a3
+fb5ff06f
 00000000
 00000000
