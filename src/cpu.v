@@ -11,9 +11,6 @@ module cpu (
   wire if_is_compact;
   wire if_is_instruction_second_half;
 
-  wire [31:0] peripheral_bus;
-  wire [31:0] wb_peripheral_bus;
-
   wire [31:0] id_instruction;
   wire [4:0] id_rs1;
   wire [4:0] id_rs2;
@@ -28,12 +25,9 @@ module cpu (
   wire [3:0] id_branch_type;
   wire [31:0] id_rs1_data;
   wire [31:0] id_rs2_data;
-  wire ex_should_branch;
   wire [31:0] id_pc;
   wire [4:0] id_atomic_op;
   wire id_is_compact;
-
-  wire alu_should_bypass_a, alu_should_bypass_b;
 
   wire [31:0] ex_rs1_data;
   wire [31:0] ex_rs2_data;
@@ -53,6 +47,7 @@ module cpu (
   wire ex_mem_read;
   wire [2:0] ex_mem_op_length;
   wire [31:0] ex_pc;
+  wire ex_should_branch;
   wire [3:0] ex_branch_type;
   wire [31:0] ex_next_instruction_address;
   wire [31:0] ex_result;
@@ -66,10 +61,12 @@ module cpu (
   wire mem_mem_write;
   wire mem_mem_read;
   wire [2:0] mem_mem_op_length;
-  wire [31:0] mem_mem_data;
   wire [4:0] mem_atomic_op;
   wire [31:0] mem_atomic_result;
-  wire [31:0] mem_input_data;
+  wire [31:0] mem_full_input_data;
+  wire [31:0] mem_full_output_data;
+  reg [31:0] mem_input_data = 0;
+  reg [31:0] mem_output_data = 0;
 
   wire [31:0] wb_result;
   wire [31:0] wb_rd_data;
@@ -77,8 +74,6 @@ module cpu (
   wire wb_reg_write;
   wire [31:0] wb_mem_data;
   wire wb_mem_read;
-
-  wire [31:0] r1;
 
   wire [31:0] l1i_address;
   wire l1i_hit, l1d_hit;
@@ -250,7 +245,7 @@ module cpu (
     .mem_mem_read(mem_mem_read),
     .mem_rd(mem_rd),
     .mem_result(mem_result),
-    .mem_mem_data(mem_mem_data),
+    .mem_mem_data(mem_output_data),
     .wb_rd(wb_rd),
     .wb_rd_data(wb_rd_data),
     .wb_reg_write(wb_reg_write),
@@ -293,7 +288,28 @@ module cpu (
     .reset(ex_alu_busy)
   );
 
-  assign mem_input_data = (mem_atomic_op == `ATOMIC_NO_OP) ? mem_rs2_data_forwarded : mem_atomic_result;
+  assign mem_full_input_data = (mem_atomic_op == `ATOMIC_NO_OP) ? mem_rs2_data_forwarded : mem_atomic_result;
+
+  always @* begin
+    case (mem_mem_op_length)
+      `MEM_HALF: mem_input_data <= $signed(mem_full_input_data[15:0]);
+      `MEM_BYTE: mem_input_data <= $signed(mem_full_input_data[7:0]);
+      `MEM_HALF_U: mem_input_data <= {16'b0, mem_full_input_data[15:0]};
+      `MEM_BYTE_U: mem_input_data <= {24'b0, mem_full_input_data[7:0]};
+      default: mem_input_data <= mem_full_input_data; 
+    endcase
+  end
+
+  always @* begin
+    case (mem_mem_op_length)
+      `MEM_HALF: mem_output_data <= $signed(mem_full_output_data[15:0]);
+      `MEM_BYTE: mem_output_data <= $signed(mem_full_output_data[7:0]);
+      `MEM_HALF_U: mem_output_data <= {16'b0, mem_full_output_data[15:0]};
+      `MEM_BYTE_U: mem_output_data <= {24'b0, mem_full_output_data[7:0]};
+      default: mem_output_data <= mem_full_output_data; 
+    endcase
+  end
+
   l1 l1d (
     .address(mem_result),
     .input_data(mem_input_data),
@@ -302,13 +318,13 @@ module cpu (
     .should_cache(memory_controller_data_source == `DATA_SOURCE_RAM),
     .memory_controller_ready(~stall_l1d),
     .clock(cpu_clock),
-    .output_data(mem_mem_data),
+    .output_data(mem_full_output_data),
     .hit(l1d_hit),
     .ready(l1d_ready)
   );
 
   atomic atomic(
-    .a(mem_mem_data),
+    .a(mem_output_data),
     .b(mem_rs2_data_forwarded),
     .op(mem_atomic_op),
     .result(mem_atomic_result)
@@ -317,7 +333,7 @@ module cpu (
   mem_wb_pipeline_registers mem_wb_pipeline_registers (
     .clock(cpu_clock),
     .mem_result(mem_result),
-    .mem_mem_data(mem_mem_data),
+    .mem_mem_data(mem_output_data),
     .mem_rd(mem_rd),
     .mem_reg_write(mem_reg_write),
     .mem_mem_read(mem_mem_read),
