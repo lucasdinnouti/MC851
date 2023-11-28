@@ -5,7 +5,11 @@ module cpu (
   output wire [5:0] led
 );
   wire [31:0] if_pc;
+  wire [31:0] if_l1i_output_data;
   wire [31:0] if_instruction;
+  wire if_is_instruction_first_half;
+  wire if_is_compact;
+  wire if_is_instruction_second_half;
 
   wire [31:0] peripheral_bus;
   wire [31:0] wb_peripheral_bus;
@@ -27,6 +31,7 @@ module cpu (
   wire ex_should_branch;
   wire [31:0] id_pc;
   wire [4:0] id_atomic_op;
+  wire id_is_compact;
 
   wire alu_should_bypass_a, alu_should_bypass_b;
 
@@ -52,6 +57,7 @@ module cpu (
   wire [31:0] ex_next_instruction_address;
   wire [31:0] ex_result;
   wire [4:0] ex_atomic_op;
+  wire ex_is_compact;
 
   wire [31:0] mem_result;
   wire [31:0] mem_rs2_data_forwarded;
@@ -80,7 +86,7 @@ module cpu (
   wire [31:0] memory_controller_output_data;
   wire [1:0] memory_controller_data_source;
   wire stall_l1i, stall_l1d;
-  assign l1i_address = if_pc;
+  assign l1i_address = if_is_instruction_second_half ? (if_pc + 2) : if_pc;
 
 `ifdef SIMULATOR
   // Uncontrolled clock
@@ -89,7 +95,7 @@ module cpu (
 `else
   // Controlled clock
   reg cpu_clock = 0;
-  localparam WAIT_TIME = 135000;
+  localparam WAIT_TIME = 13500000;
   reg [23:0] clock_counter = 0;
   always @(posedge clock) begin
     if (clock_counter < WAIT_TIME) begin
@@ -101,13 +107,8 @@ module cpu (
   end
 `endif
 
-  // assign led[4] = ~cpu_clock;
+  assign led[4] = ~cpu_clock;
   assign led[3:0] = 4'b1111;
-
-  //assign output_peripherals[0] = wb_rd[0];
-  //assign output_peripherals[1] = wb_rd_data[0];
-  //assign output_peripherals[2] = wb_reg_write;
-  // assign led[3:0] = ~wb_result[3:0];
 
   memory_controller memory_controller (
     .l1i_address(l1i_address),
@@ -132,7 +133,8 @@ module cpu (
     .rs2_data(ex_rs2_data_forwarded),
     .immediate(ex_immediate),
     .branch_type(ex_branch_type),
-    .increment_pc(~ex_alu_busy && (ex_should_branch || ~stall_l1i)),
+    .if_is_compact(if_is_compact),
+    .increment_pc(~if_is_instruction_first_half && ~ex_alu_busy && (ex_should_branch || ~stall_l1i)),
     .if_pc(if_pc),
     .should_branch(ex_should_branch)
   );
@@ -145,9 +147,20 @@ module cpu (
     .should_cache(memory_controller_data_source == `DATA_SOURCE_ROM),
     .memory_controller_ready(~stall_l1i),
     .clock(cpu_clock),
-    .output_data(if_instruction),
+    .output_data(if_l1i_output_data),
     .hit(l1i_hit),
     .ready(l1i_ready)
+  );
+
+  assign if_is_compact = (if_instruction[1:0] != 2'b11 && if_instruction != 32'b0);
+
+  fetch fetch (
+    .clock(cpu_clock),
+    .pc(if_pc),
+    .instruction_memory_output(if_l1i_output_data),
+    .instruction(if_instruction),
+    .is_instruction_first_half(if_is_instruction_first_half),
+    .is_instruction_second_half(if_is_instruction_second_half)
   );
 
   if_id_pipeline_registers if_id_pipeline_registers (
@@ -173,7 +186,8 @@ module cpu (
     .mem_read(id_mem_read),
     .mem_op_length(id_mem_op_length),
     .branch_type(id_branch_type),
-    .atomic_op(id_atomic_op)
+    .atomic_op(id_atomic_op),
+    .is_compact(id_is_compact)
   );
 
   registers registers (
@@ -204,6 +218,7 @@ module cpu (
     .id_pc(id_pc),
     .id_branch_type(id_branch_type),
     .id_atomic_op(id_atomic_op),
+    .id_is_compact(id_is_compact),
     .ex_rs1_data(ex_rs1_data),
     .ex_rs2_data(ex_rs2_data),
     .ex_alu_op(ex_alu_op),
@@ -219,6 +234,7 @@ module cpu (
     .ex_pc(ex_pc),
     .ex_branch_type(ex_branch_type),
     .ex_atomic_op(ex_atomic_op),
+    .ex_is_compact(ex_is_compact),
     .reset(ex_should_branch),
     .stall(ex_alu_busy)
   );
@@ -253,7 +269,7 @@ module cpu (
     .busy(ex_alu_busy)
   );
 
-  assign ex_next_instruction_address = ex_pc + 4;
+  assign ex_next_instruction_address = ex_pc + (ex_is_compact ? 2 : 4);
   assign ex_result = (ex_branch_type == `BRANCH_JAL || ex_branch_type == `BRANCH_JALR) ? ex_next_instruction_address : ex_alu_result;
 
   ex_mem_pipeline_registers ex_mem_pipeline_registers(
