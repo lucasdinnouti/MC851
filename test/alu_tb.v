@@ -7,10 +7,12 @@ module alu_tb;
   reg [31:0] a, b;
   reg  [ 4:0] op;
   wire [31:0] result;
+  reg clock = 0;
 
   localparam PERIOD = 10;
 
   alu under_test (
+      .clock(clock),
       .a(a),
       .b(b),
       .op(op),
@@ -22,6 +24,7 @@ module alu_tb;
     $dumpvars(0, alu_tb);
   end
 
+  integer i;
   initial begin
     a  = 10;
     b  = 10;
@@ -110,19 +113,28 @@ module alu_tb;
     a  = -30;
     b  = 3;
     op = `ALU_DIV_OP;
-    #PERIOD;
+    for (i = 0; i < 69; i = i + 1) begin
+      #PERIOD;
+      clock = ~clock;
+    end
     `assert_alu_result("div", -10);
 
     a  = 31;
     b  = 3;
-    op = `ALU_DIV_OP;
-    #PERIOD;
+    op = `ALU_DIVU_OP;
+    for (i = 0; i < 68; i = i + 1) begin
+      #PERIOD;
+      clock = ~clock;
+    end
     `assert_alu_result("divu", 10);
 
     a  = 31;
     b  = 3;
     op = `ALU_REM_OP;
-    #PERIOD;
-    `assert_alu_result("div", 1);
+    for (i = 0; i < 68; i = i + 1) begin
+      #PERIOD;
+      clock = ~clock;
+    end
+    `assert_alu_result("rem", 1);
   end
 endmodule

@@ -1,6 +1,7 @@
 module divider (
     input wire clock,
     input wire start,
+    input wire is_signed,
     input wire [31:0] a,
     input wire [31:0] b,
     output reg [31:0] result = 0,
@@ -19,51 +20,28 @@ module divider (
       result <= 32'b0;
       remainder <= 32'b0;
       i <= 6'b0;
+      aux <= (is_signed && a[31]) ? -a : a;
+      divisor <= (is_signed && b[31]) ? -b : b;
+      sign <= (is_signed && (a[31] ^ b[31])) ? `SIGN_NEGATIVE : `SIGN_POSITIVE;
+    end else if (i < 32) begin
+      remainder = remainder << 1;
+      remainder[0] = aux[31];
+      aux = aux << 1;
+      result = result << 1;
 
-      if ($signed(a) > 0) begin
-        if ($signed(b) > 0) begin
-          aux <= a;
-          divisor <= b;
-          sign <= `SIGN_POSITIVE;
-        end else begin
-          aux <= a;
-          divisor <= -b;
-          sign <= `SIGN_NEGATIVE;
-        end
-      end else begin
-        if ($signed(b) < 0) begin
-          aux <= -a;
-          divisor <= -b;
-          sign <= `SIGN_POSITIVE;
-        end else begin
-          aux <= -a;
-          divisor <= b;
-          sign <= `SIGN_NEGATIVE;
-        end
+      if (remainder >= divisor) begin
+          remainder = remainder - divisor;
+          result[0] = 1'b1;
       end
+
+      i = i + 1'b1;
     end else if (i >= 32) begin
       if (sign == `SIGN_NEGATIVE) begin
         result <= -result;
+        remainder <= -remainder;
       end
 
       busy <= 1'b0;
-    end
-  end
-
-  always @(posedge clock) begin
-    if (i < 32) begin
-      // FIXME: This is broken on GoWIN synthesis
-      // remainder = remainder << 1;
-      // remainder[0] = aux[31];
-      // aux = aux << 1;
-      // result = result << 1;
-
-      // if (remainder >= divisor) begin
-      //   remainder = remainder - divisor;
-      //   result[0] = 1'b1;
-      // end
-
-      // i = i + 1'b1;
     end
   end
 endmodule
