@@ -11,15 +11,15 @@ module alu (
   wire [31:0] div_result;
   wire [31:0] div_remainder;
 
-  divider divider(
-    .clock(clock), 
-    .start(op == `ALU_DIV_OP || op == `ALU_DIVU_OP || op == `ALU_REM_OP || op == `ALU_REMU_OP), 
-    .is_signed(op == `ALU_DIV_OP || op == `ALU_REM_OP),
-    .a(a), 
-    .b(b), 
-    .result(div_result), 
-    .remainder(div_remainder),
-    .busy(busy)
+  divider divider (
+      .clock(clock),
+      .start(op == `ALU_DIV_OP || op == `ALU_DIVU_OP || op == `ALU_REM_OP || op == `ALU_REMU_OP),
+      .is_signed(op == `ALU_DIV_OP || op == `ALU_REM_OP),
+      .a(a),
+      .b(b),
+      .result(div_result),
+      .remainder(div_remainder),
+      .busy(busy)
   );
 
   always @* begin

@@ -1,39 +1,39 @@
-module id_ex_pipeline_registers(
-  input wire clock,
-  input wire [31:0] id_rs1_data,
-  input wire [31:0] id_rs2_data,
-  input wire [4:0] id_alu_op,
-  input wire [4:0] id_rd,
-  input wire [4:0] id_rs1,
-  input wire [4:0] id_rs2,
-  input wire id_reg_write,
-  input wire id_alu_use_rs2,
-  input wire [31:0] id_immediate,
-  input wire id_mem_write,
-  input wire id_mem_read,
-  input wire [2:0] id_mem_op_length,
-  input wire [31:0] id_pc,
-  input wire [3:0] id_branch_type,
-  input wire [4:0] id_atomic_op,
-  input wire id_is_compact,
-  input wire reset,
-  input wire stall,
-  output wire [31:0] ex_rs1_data,
-  output wire [31:0] ex_rs2_data,
-  output wire [4:0] ex_alu_op,
-  output wire [4:0] ex_rd,
-  output wire [4:0] ex_rs1,
-  output wire [4:0] ex_rs2,
-  output wire ex_reg_write,
-  output wire ex_alu_use_rs2,
-  output wire [31:0] ex_immediate,
-  output wire ex_mem_write,
-  output wire ex_mem_read,
-  output wire [2:0] ex_mem_op_length,
-  output wire [31:0] ex_pc,
-  output wire [3:0] ex_branch_type,
-  output wire [4:0] ex_atomic_op,
-  output wire ex_is_compact
+module id_ex_pipeline_registers (
+    input wire clock,
+    input wire [31:0] id_rs1_data,
+    input wire [31:0] id_rs2_data,
+    input wire [4:0] id_alu_op,
+    input wire [4:0] id_rd,
+    input wire [4:0] id_rs1,
+    input wire [4:0] id_rs2,
+    input wire id_reg_write,
+    input wire id_alu_use_rs2,
+    input wire [31:0] id_immediate,
+    input wire id_mem_write,
+    input wire id_mem_read,
+    input wire [2:0] id_mem_op_length,
+    input wire [31:0] id_pc,
+    input wire [3:0] id_branch_type,
+    input wire [4:0] id_atomic_op,
+    input wire id_is_compact,
+    input wire reset,
+    input wire stall,
+    output wire [31:0] ex_rs1_data,
+    output wire [31:0] ex_rs2_data,
+    output wire [4:0] ex_alu_op,
+    output wire [4:0] ex_rd,
+    output wire [4:0] ex_rs1,
+    output wire [4:0] ex_rs2,
+    output wire ex_reg_write,
+    output wire ex_alu_use_rs2,
+    output wire [31:0] ex_immediate,
+    output wire ex_mem_write,
+    output wire ex_mem_read,
+    output wire [2:0] ex_mem_op_length,
+    output wire [31:0] ex_pc,
+    output wire [3:0] ex_branch_type,
+    output wire [4:0] ex_atomic_op,
+    output wire ex_is_compact
 );
   reg [31:0] rs1_data = 0;
   reg [31:0] rs2_data = 0;
@@ -87,7 +87,7 @@ module id_ex_pipeline_registers(
       branch_type <= `BRANCH_NONE;
       atomic_op <= `ATOMIC_NO_OP;
       is_compact <= 0;
-    end else if (!stall) begin 
+    end else if (!stall) begin
       rs1_data <= id_rs1_data;
       rs2_data <= id_rs2_data;
       alu_op <= id_alu_op;

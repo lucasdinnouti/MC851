@@ -5,7 +5,7 @@
 
 module alu_tb;
   reg [31:0] a, b;
-  reg  [ 4:0] op;
+  reg [4:0] op;
   wire [31:0] result;
   reg clock = 0;
 

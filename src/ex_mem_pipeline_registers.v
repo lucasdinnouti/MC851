@@ -1,22 +1,22 @@
-module ex_mem_pipeline_registers(
-  input wire clock,
-  input wire [31:0] ex_result,
-  input wire [31:0] ex_rs2_data_forwarded,
-  input wire [4:0] ex_rd,
-  input wire ex_reg_write,
-  input wire ex_mem_write,
-  input wire ex_mem_read,
-  input wire [2:0] ex_mem_op_length,
-  input wire [4:0] ex_atomic_op,
-  input wire reset,
-  output wire [31:0] mem_result,
-  output wire [31:0] mem_rs2_data_forwarded,
-  output wire [4:0] mem_rd,
-  output wire mem_reg_write,
-  output wire mem_mem_write,
-  output wire mem_mem_read,
-  output wire [2:0] mem_mem_op_length,
-  output wire [4:0] mem_atomic_op
+module ex_mem_pipeline_registers (
+    input wire clock,
+    input wire [31:0] ex_result,
+    input wire [31:0] ex_rs2_data_forwarded,
+    input wire [4:0] ex_rd,
+    input wire ex_reg_write,
+    input wire ex_mem_write,
+    input wire ex_mem_read,
+    input wire [2:0] ex_mem_op_length,
+    input wire [4:0] ex_atomic_op,
+    input wire reset,
+    output wire [31:0] mem_result,
+    output wire [31:0] mem_rs2_data_forwarded,
+    output wire [4:0] mem_rd,
+    output wire mem_reg_write,
+    output wire mem_mem_write,
+    output wire mem_mem_read,
+    output wire [2:0] mem_mem_op_length,
+    output wire [4:0] mem_atomic_op
 );
   reg [31:0] result = 0;
   reg [31:0] rs2_data_forwarded = 0;

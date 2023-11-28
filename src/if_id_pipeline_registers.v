@@ -1,11 +1,11 @@
-module if_id_pipeline_registers(
-  input wire clock,
-  input wire [31:0] if_instruction,
-  input wire [31:0] if_pc,
-  input wire reset,
-  input wire stall,
-  output wire [31:0] id_instruction,
-  output wire [31:0] id_pc
+module if_id_pipeline_registers (
+    input wire clock,
+    input wire [31:0] if_instruction,
+    input wire [31:0] if_pc,
+    input wire reset,
+    input wire stall,
+    output wire [31:0] id_instruction,
+    output wire [31:0] id_pc
 );
   reg [31:0] instruction = 0;
   reg [31:0] pc = 0;

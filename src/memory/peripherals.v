@@ -1,16 +1,16 @@
 
 module peripherals (
-  input wire [31:0] address,
-  input wire [31:0] input_data,
-  input wire should_write,
-  input wire clock,
-  input wire [3:0] input_peripherals,
-  output reg [3:0] output_peripherals = 0,
-  output wire [31:0] output_data
+    input wire [31:0] address,
+    input wire [31:0] input_data,
+    input wire should_write,
+    input wire clock,
+    input wire [3:0] input_peripherals,
+    output reg [3:0] output_peripherals = 0,
+    output wire [31:0] output_data
 );
   wire [1:0] index;
   assign index = address[1:0];
-  assign output_data = { 31'h0, input_peripherals[index] };
+  assign output_data = {31'h0, input_peripherals[index]};
 
   always @(negedge clock) begin
     if (should_write) begin

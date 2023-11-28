@@ -30,8 +30,8 @@ module divider (
       result = result << 1;
 
       if (remainder >= divisor) begin
-          remainder = remainder - divisor;
-          result[0] = 1'b1;
+        remainder = remainder - divisor;
+        result[0] = 1'b1;
       end
 
       i = i + 1'b1;

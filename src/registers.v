@@ -8,7 +8,7 @@ module registers (
     output wire [31:0] rs1_data,
     output wire [31:0] rs2_data
 );
-  
+
   reg [31:0] registers[31:0];
   integer i;
   initial begin

@@ -32,23 +32,23 @@ module forwarding (
 
   always @* begin
     if (should_bypass_mem_a) begin
-        rs1_data_forwarded <= mem_result;
+      rs1_data_forwarded <= mem_result;
     end else if (should_bypass_mem_read_a) begin
-        rs1_data_forwarded <= mem_mem_data;
+      rs1_data_forwarded <= mem_mem_data;
     end else if (should_bypass_wb_a) begin
-        rs1_data_forwarded <= wb_rd_data;
+      rs1_data_forwarded <= wb_rd_data;
     end else begin
-        rs1_data_forwarded <= ex_rs1_data;
+      rs1_data_forwarded <= ex_rs1_data;
     end
 
     if (should_bypass_mem_b) begin
-        rs2_data_forwarded <= mem_result;
+      rs2_data_forwarded <= mem_result;
     end else if (should_bypass_mem_read_b) begin
-        rs2_data_forwarded <= mem_mem_data;
+      rs2_data_forwarded <= mem_mem_data;
     end else if (should_bypass_wb_b) begin
-        rs2_data_forwarded <= wb_rd_data;
+      rs2_data_forwarded <= wb_rd_data;
     end else begin
-        rs2_data_forwarded <= ex_rs2_data;
+      rs2_data_forwarded <= ex_rs2_data;
     end
   end
 endmodule

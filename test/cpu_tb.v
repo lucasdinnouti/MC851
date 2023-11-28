@@ -6,7 +6,10 @@ module cpu_tb;
 
   localparam PERIOD = 10;
 
-  cpu cpu (.clock(clock), .output_peripherals(output_peripherals));
+  cpu cpu (
+      .clock(clock),
+      .output_peripherals(output_peripherals)
+  );
 
   initial begin
     $dumpfile("cpu.vcd");

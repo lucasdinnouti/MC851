@@ -1,10 +1,10 @@
 module fetch (
-  input wire clock,
-  input wire [31:0] pc,
-  input wire [31:0] instruction_memory_output,
-  output reg [31:0] instruction,
-  output wire is_instruction_first_half,
-  output wire is_instruction_second_half
+    input wire clock,
+    input wire [31:0] pc,
+    input wire [31:0] instruction_memory_output,
+    output reg [31:0] instruction,
+    output wire is_instruction_first_half,
+    output wire is_instruction_second_half
 );
   reg [15:0] previous_instruction_half = 0;
   reg previous_was_first_half = 0;
@@ -22,7 +22,7 @@ module fetch (
       previous_was_first_half <= 0;
     end else if (is_instruction_first_half) begin
       previous_instruction_half <= instruction_memory_output[31:16];
-      previous_was_first_half <= 1;
+      previous_was_first_half   <= 1;
     end
   end
 
