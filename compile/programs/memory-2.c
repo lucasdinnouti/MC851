@@ -11,6 +11,6 @@ void main() {
     if (*unsigned_byte == 0xfd && *unsigned_half == 0xfcfd && *word == 0xfafbfcfd && *half == 0xfffffcfd && *byte == 0xfffffffd) {
         *output = 1;
     } else {
-        output = 0;
+        *output = 0;
     }
 }

@@ -12,7 +12,7 @@
 //     if (*unsigned_byte == 0xfd && *unsigned_half == 0xfcfd && *word == 0xfafbfcfd && *half == 0xfffffcfd && *byte == 0xfffffffd) {
 //         *output = 1;
 //     } else {
-//         output = 0;
+//         *output = 0;
 //     }
 // }
 // ============================================================
@@ -71,13 +71,14 @@
 //   a6:	fd842783          	lw	a5,-40(s0)
 //   aa:	4705                	li	a4,1
 //   ac:	c398                	sw	a4,0(a5)
-//   ae:	a021                	j	b6 <main+0xa6>
-//   b0:	fc042c23          	sw	zero,-40(s0)
-//   b4:	0001                	nop
-//   b6:	0001                	nop
-//   b8:	5432                	lw	s0,44(sp)
-//   ba:	6145                	add	sp,sp,48
-//   bc:	8082                	ret
+//   ae:	a031                	j	ba <main+0xaa>
+//   b0:	fd842783          	lw	a5,-40(s0)
+//   b4:	0007a023          	sw	zero,0(a5)
+//   b8:	0001                	nop
+//   ba:	0001                	nop
+//   bc:	5432                	lw	s0,44(sp)
+//   be:	6145                	add	sp,sp,48
+//   c0:	8082                	ret
 // ============================================================
 00010001
 1fc00113
@@ -122,8 +123,9 @@ fdc42783
 176357f5
 278300f7
 4705fd84
-a021c398
-fc042c23
+a031c398
+fd842783
+0007a023
 00010001
 61455432
 8082

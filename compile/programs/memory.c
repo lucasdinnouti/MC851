@@ -11,6 +11,6 @@ void main() {
     if (*c == 444) {
         *output = 1;
     } else {
-        output = 0;
+        *output = 0;
     }
 }
