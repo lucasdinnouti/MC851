@@ -10,10 +10,6 @@
 
 Placa R4
 
-# Diagrama
-
-![arquitetura](https://github.com/lucasdinnouti/MC851/assets/32870665/e791ab5a-f0b6-4139-8b19-5eb72288b701)
-
 # Execução
 
 Para executar testes com `iverilog`:
@@ -35,6 +31,10 @@ Para carregar a síntese do programa na FPGA utilizando o `openFPGALoader` (é n
 ```bash
 ./program.sh
 ```
+
+# Diagrama
+
+![arquitetura](https://github.com/lucasdinnouti/MC851/assets/32870665/e791ab5a-f0b6-4139-8b19-5eb72288b701)
 
 # Roteiro
 
