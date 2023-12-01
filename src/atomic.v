@@ -1,8 +1,8 @@
 module atomic (
-    input wire [31:0] a,
-    input wire [31:0] b,
-    input wire [4:0] op,
-    output reg [31:0] result
+    input  wire [31:0] a,
+    input  wire [31:0] b,
+    input  wire [ 4:0] op,
+    output reg  [31:0] result
 );
   always @* begin
     case (op)

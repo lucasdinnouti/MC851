@@ -1,16 +1,16 @@
-module mem_wb_pipeline_registers(
-  input wire clock,
-  input wire [31:0] mem_result,
-  input wire [31:0] mem_mem_data,
-  input wire [4:0] mem_rd,
-  input wire mem_reg_write,
-  input wire mem_mem_read,
-  input wire reset,
-  output wire [31:0] wb_result,
-  output wire [31:0] wb_mem_data,
-  output wire [4:0] wb_rd,
-  output wire wb_reg_write,
-  output wire wb_mem_read
+module mem_wb_pipeline_registers (
+    input wire clock,
+    input wire [31:0] mem_result,
+    input wire [31:0] mem_mem_data,
+    input wire [4:0] mem_rd,
+    input wire mem_reg_write,
+    input wire mem_mem_read,
+    input wire reset,
+    output wire [31:0] wb_result,
+    output wire [31:0] wb_mem_data,
+    output wire [4:0] wb_rd,
+    output wire wb_reg_write,
+    output wire wb_mem_read
 );
   reg [31:0] result = 0;
   reg [31:0] mem_data = 0;

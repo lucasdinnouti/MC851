@@ -1,21 +1,31 @@
-#!/bin/sh
+#!/bin/bash
 
-echo "-> Running ALU tests"
-iverilog src/constants.v test/assert.v src/divider.v src/alu.v test/alu_tb.v && ./a.out
-echo
+run_test() {
+    echo
+    iverilog ${@:2} 1> stdout.txt 2> stderr.txt
+    ./a.out 1>> stdout.txt 2>> stderr.txt
+    if [ -s stderr.txt ]; then
+        echo -e "\e[31m> Test $1 failed!\e[0m"
+        cat stdout.txt
+        cat stderr.txt
+    else 
+        echo -e "\e[32m> Test $1 passed!\e[0m"
+    fi
+    rm stdout.txt stderr.txt
+    rm a.out
+}
 
-echo "-> Running registers tests"
-iverilog test/assert.v src/registers.v test/registers_tb.v && ./a.out
-echo
-
-echo "-> Running decoder tests"
-iverilog src/constants.v test/assert.v src/decoder.v test/decoder_tb.v && ./a.out
-echo
-
-rm a.out
-
-echo "-> Running CPU test"
 cd src
-iverilog -DSIMULATOR -DPROGRAM='`"full-instruction-set.riscv`"' constants.v alu.v branch.v decoder.v memory/memory_controller.v memory/ram.v memory/rom.v memory/l1.v memory/peripherals.v registers.v ex_mem_pipeline_registers.v id_ex_pipeline_registers.v if_id_pipeline_registers.v mem_wb_pipeline_registers.v forwarding.v atomic.v divider.v cpu.v ../test/assert.v ../test/cpu_tb.v && ./a.out
-rm a.out
+
+run_test "ALU" constants.v ../test/assert.v divider.v alu.v ../test/alu_tb.v
+run_test "registers" ../test/assert.v registers.v ../test/registers_tb.v
+run_test "decoder" constants.v ../test/assert.v decoder.v ../test/decoder_tb.v
+
+TEST_PROGRAMS="led-compiled function-compiled arithmetic-compiled arithmetic-2-compiled memory-compiled memory-2-compiled"
+
+for PROGRAM in $TEST_PROGRAMS; do
+    PROGRAM_ENV="\`\"$PROGRAM.riscv\`\""
+    run_test "CPU ($PROGRAM)" -DSIMULATOR -DPROGRAM=$PROGRAM_ENV constants.v alu.v branch.v decoder.v memory/memory_controller.v memory/ram.v memory/rom.v memory/l1.v memory/peripherals.v registers.v ex_mem_pipeline_registers.v id_ex_pipeline_registers.v if_id_pipeline_registers.v mem_wb_pipeline_registers.v forwarding.v atomic.v divider.v cpu.v fetch.v ../test/assert.v ../test/cpu_tb.v
+done
+
 cd ..
