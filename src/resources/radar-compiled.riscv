@@ -27,7 +27,7 @@
 //             counter += 1;
 //         }
 // 
-//         if (counter > 3) {
+//         if (counter > 20) {
 //             *green_led_addr = 1;
 //             *red_led_addr = 0;
 //         } else {
@@ -35,7 +35,7 @@
 //             *red_led_addr = 1;
 //         }
 // 
-//         int outro_timer = 20;
+//         int outro_timer = 200;
 // 
 //         while (outro_timer > 0) {
 //             outro_timer -= 1;
@@ -89,7 +89,7 @@
 //   7c:	439c                	lw	a5,0(a5)
 //   7e:	fbe5                	bnez	a5,6e <main+0x5e>
 //   80:	fec42703          	lw	a4,-20(s0)
-//   84:	478d                	li	a5,3
+//   84:	47d1                	li	a5,20
 //   86:	00e7db63          	bge	a5,a4,9c <main+0x8c>
 //   8a:	fd842783          	lw	a5,-40(s0)
 //   8e:	4705                	li	a4,1
@@ -102,15 +102,15 @@
 //   a4:	fd442783          	lw	a5,-44(s0)
 //   a8:	4705                	li	a4,1
 //   aa:	c398                	sw	a4,0(a5)
-//   ac:	47d1                	li	a5,20
-//   ae:	fef42423          	sw	a5,-24(s0)
-//   b2:	a031                	j	be <main+0xae>
-//   b4:	fe842783          	lw	a5,-24(s0)
-//   b8:	17fd                	add	a5,a5,-1
-//   ba:	fef42423          	sw	a5,-24(s0)
-//   be:	fe842783          	lw	a5,-24(s0)
-//   c2:	fef049e3          	bgtz	a5,b4 <main+0xa4>
-//   c6:	bfa5                	j	3e <main+0x2e>
+//   ac:	0c800793          	li	a5,200
+//   b0:	fef42423          	sw	a5,-24(s0)
+//   b4:	a031                	j	c0 <main+0xb0>
+//   b6:	fe842783          	lw	a5,-24(s0)
+//   ba:	17fd                	add	a5,a5,-1
+//   bc:	fef42423          	sw	a5,-24(s0)
+//   c0:	fe842783          	lw	a5,-24(s0)
+//   c4:	fef049e3          	bgtz	a5,b6 <main+0xa6>
+//   c8:	bf9d                	j	3e <main+0x2e>
 // ============================================================
 00010001
 1fc00113
@@ -145,7 +145,7 @@ fef42623
 fdc42783
 fbe5439c
 fec42703
-db63478d
+db6347d1
 278300e7
 4705fd84
 2783c398
@@ -155,10 +155,11 @@ fd842783
 0007a023
 fd442783
 c3984705
-242347d1
-a031fef4
+0c800793
+fef42423
+2783a031
+17fdfe84
+fef42423
 fe842783
-242317fd
-2783fef4
-49e3fe84
-bfa5fef0
+fef049e3
+bf9d

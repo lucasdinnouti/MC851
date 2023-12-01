@@ -26,7 +26,7 @@ void main() {
             counter += 1;
         }
 
-        if (counter > 3) {
+        if (counter > 20) {
             *green_led_addr = 1;
             *red_led_addr = 0;
         } else {
@@ -34,7 +34,7 @@ void main() {
             *red_led_addr = 1;
         }
 
-        int outro_timer = 20;
+        int outro_timer = 200;
 
         while (outro_timer > 0) {
             outro_timer -= 1;
