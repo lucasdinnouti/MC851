@@ -1,1 +1,1 @@
-`define PROGRAM `"peripheral.riscv`"
+`define PROGRAM `"radar-compiled.riscv`"
