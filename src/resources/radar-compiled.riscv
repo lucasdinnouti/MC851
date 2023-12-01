@@ -1,0 +1,165 @@
+// ============================================================
+// void main() {
+// 
+//     // handy addresses
+//     int* debug_led = 515;
+//     
+//     int* sensor_a_addr = 512;
+//     int* sensor_b_addr = 513;
+// 
+//     int* green_led_addr = 513;
+//     int* red_led_addr = 514;
+//     int counter;
+// 
+//     while (1) {
+// 
+//         // program
+//         *green_led_addr = 0;
+//         *red_led_addr = 0;
+//         *debug_led = 0;
+//         counter = 0;
+//         
+//         while (*sensor_a_addr) {}
+// 
+//         *debug_led = 1;
+// 
+//         while (*sensor_b_addr) {
+//             counter += 1;
+//         }
+// 
+//         if (counter > 20) {
+//             *green_led_addr = 1;
+//             *red_led_addr = 0;
+//         } else {
+//             *green_led_addr = 0;
+//             *red_led_addr = 1;
+//         }
+// 
+//         int outro_timer = 200;
+// 
+//         while (outro_timer > 0) {
+//             outro_timer -= 1;
+//         }
+//     }
+// }
+// ============================================================
+// 00000000 <_start>:
+//    0:	0001                	nop
+//    2:	0001                	nop
+//    4:	1fc00113          	li	sp,508
+//    8:	008000ef          	jal	10 <main>
+// 
+// 0000000c <loop>:
+//    c:	0001                	nop
+//    e:	bffd                	j	c <loop>
+// 
+// 00000010 <main>:
+//   10:	7179                	add	sp,sp,-48
+//   12:	d622                	sw	s0,44(sp)
+//   14:	1800                	add	s0,sp,48
+//   16:	20300793          	li	a5,515
+//   1a:	fef42223          	sw	a5,-28(s0)
+//   1e:	20000793          	li	a5,512
+//   22:	fef42023          	sw	a5,-32(s0)
+//   26:	20100793          	li	a5,513
+//   2a:	fcf42e23          	sw	a5,-36(s0)
+//   2e:	20100793          	li	a5,513
+//   32:	fcf42c23          	sw	a5,-40(s0)
+//   36:	20200793          	li	a5,514
+//   3a:	fcf42a23          	sw	a5,-44(s0)
+//   3e:	fd842783          	lw	a5,-40(s0)
+//   42:	0007a023          	sw	zero,0(a5)
+//   46:	fd442783          	lw	a5,-44(s0)
+//   4a:	0007a023          	sw	zero,0(a5)
+//   4e:	fe442783          	lw	a5,-28(s0)
+//   52:	0007a023          	sw	zero,0(a5)
+//   56:	fe042623          	sw	zero,-20(s0)
+//   5a:	0001                	nop
+//   5c:	fe042783          	lw	a5,-32(s0)
+//   60:	439c                	lw	a5,0(a5)
+//   62:	ffed                	bnez	a5,5c <main+0x4c>
+//   64:	fe442783          	lw	a5,-28(s0)
+//   68:	4705                	li	a4,1
+//   6a:	c398                	sw	a4,0(a5)
+//   6c:	a031                	j	78 <main+0x68>
+//   6e:	fec42783          	lw	a5,-20(s0)
+//   72:	0785                	add	a5,a5,1
+//   74:	fef42623          	sw	a5,-20(s0)
+//   78:	fdc42783          	lw	a5,-36(s0)
+//   7c:	439c                	lw	a5,0(a5)
+//   7e:	fbe5                	bnez	a5,6e <main+0x5e>
+//   80:	fec42703          	lw	a4,-20(s0)
+//   84:	47d1                	li	a5,20
+//   86:	00e7db63          	bge	a5,a4,9c <main+0x8c>
+//   8a:	fd842783          	lw	a5,-40(s0)
+//   8e:	4705                	li	a4,1
+//   90:	c398                	sw	a4,0(a5)
+//   92:	fd442783          	lw	a5,-44(s0)
+//   96:	0007a023          	sw	zero,0(a5)
+//   9a:	a809                	j	ac <main+0x9c>
+//   9c:	fd842783          	lw	a5,-40(s0)
+//   a0:	0007a023          	sw	zero,0(a5)
+//   a4:	fd442783          	lw	a5,-44(s0)
+//   a8:	4705                	li	a4,1
+//   aa:	c398                	sw	a4,0(a5)
+//   ac:	0c800793          	li	a5,200
+//   b0:	fef42423          	sw	a5,-24(s0)
+//   b4:	a031                	j	c0 <main+0xb0>
+//   b6:	fe842783          	lw	a5,-24(s0)
+//   ba:	17fd                	add	a5,a5,-1
+//   bc:	fef42423          	sw	a5,-24(s0)
+//   c0:	fe842783          	lw	a5,-24(s0)
+//   c4:	fef049e3          	bgtz	a5,b6 <main+0xa6>
+//   c8:	bf9d                	j	3e <main+0x2e>
+// ============================================================
+00010001
+1fc00113
+008000ef
+bffd0001
+d6227179
+07931800
+22232030
+0793fef4
+20232000
+0793fef4
+2e232010
+0793fcf4
+2c232010
+0793fcf4
+2a232020
+2783fcf4
+a023fd84
+27830007
+a023fd44
+27830007
+a023fe44
+26230007
+0001fe04
+fe042783
+ffed439c
+fe442783
+c3984705
+2783a031
+0785fec4
+fef42623
+fdc42783
+fbe5439c
+fec42703
+db6347d1
+278300e7
+4705fd84
+2783c398
+a023fd44
+a8090007
+fd842783
+0007a023
+fd442783
+c3984705
+0c800793
+fef42423
+2783a031
+17fdfe84
+fef42423
+fe842783
+fef049e3
+bf9d
